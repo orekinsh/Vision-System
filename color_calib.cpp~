@@ -76,6 +76,7 @@ class ColorCalibrator
         {
             for(i=0; i<7; i++)
                 color[i] = def;
+            break;
         }
         else
         {
