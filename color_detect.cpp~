@@ -87,7 +87,7 @@ class ColorDetector
         {
       	    for(x=0;x<Frame->width;x++)
     		{
-    		    if((color[Flag].R_Max<ptr[3*x]) && (ptr[3*x]<color[Flag].R_Max) && (color[Flag].G_Min<ptr[3*x+1]) && (ptr[3*x+1]<color[Flag].G_Max) & (color[Flag].B_Min<ptr[3*x+2]) && (ptr[3*x+2]<color[Flag].B_Min))
+    		    if((color[Flag].R_Min<ptr[3*x]) && (ptr[3*x]<color[Flag].R_Max) && (color[Flag].G_Min<ptr[3*x+1]) && (ptr[3*x+1]<color[Flag].G_Max) & (color[Flag].B_Min<ptr[3*x+2]) && (ptr[3*x+2]<color[Flag].B_Max))
     		        ptrp[3*x] = 255;
        		    else
     		        ptrp[3*x] = 0;
