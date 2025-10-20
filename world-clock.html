@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperVerge Global Office World Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .clock-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .clock-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .clock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .location {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .flag {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .location-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timezone {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .time {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 15px 0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+        }
+
+        .date {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .day {
+            font-size: 0.95em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status.work-hours {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status.after-hours {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status.night {
+            background: #2196f3;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .clock-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            margin-top: 40px;
+            color: white;
+            text-align: center;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HyperVerge Global Office World Clock</h1>
+        <p>Real-time clocks across all office locations</p>
+    </div>
+
+    <div class="clock-container" id="clockContainer"></div>
+
+    <div class="footer">
+        <p>Auto-updates every second | Times shown in local office timezones</p>
+    </div>
+
+    <script>
+        const offices = [
+            {
+                name: "India",
+                city: "Bangalore",
+                timezone: "Asia/Kolkata",
+                flag: "🇮🇳"
+            },
+            {
+                name: "Vietnam",
+                city: "Ho Chi Minh City",
+                timezone: "Asia/Ho_Chi_Minh",
+                flag: "🇻🇳"
+            },
+            {
+                name: "Philippines",
+                city: "Manila",
+                timezone: "Asia/Manila",
+                flag: "🇵🇭"
+            },
+            {
+                name: "Singapore",
+                city: "Singapore",
+                timezone: "Asia/Singapore",
+                flag: "🇸🇬"
+            },
+            {
+                name: "Indonesia",
+                city: "Jakarta",
+                timezone: "Asia/Jakarta",
+                flag: "🇮🇩"
+            },
+            {
+                name: "Kenya",
+                city: "Nairobi",
+                timezone: "Africa/Nairobi",
+                flag: "🇰🇪"
+            },
+            {
+                name: "South Africa",
+                city: "Johannesburg",
+                timezone: "Africa/Johannesburg",
+                flag: "🇿🇦"
+            },
+            {
+                name: "New York",
+                city: "New York City",
+                timezone: "America/New_York",
+                flag: "🇺🇸"
+            },
+            {
+                name: "South Dakota",
+                city: "Rapid City",
+                timezone: "America/Denver",
+                flag: "🇺🇸"
+            },
+            {
+                name: "San Francisco",
+                city: "San Francisco",
+                timezone: "America/Los_Angeles",
+                flag: "🇺🇸"
+            }
+        ];
+
+        function getWorkStatus(hour) {
+            if (hour >= 9 && hour < 18) {
+                return { text: "Work Hours", class: "work-hours" };
+            } else if (hour >= 18 && hour < 22) {
+                return { text: "After Hours", class: "after-hours" };
+            } else {
+                return { text: "Night Time", class: "night" };
+            }
+        }
+
+        function createClockCard(office) {
+            const card = document.createElement('div');
+            card.className = 'clock-card';
+            card.id = `clock-${office.timezone.replace(/\//g, '-')}`;
+
+            card.innerHTML = `
+                <div class="location">
+                    <div class="flag">${office.flag}</div>
+                    <div>
+                        <div class="location-name">${office.name}</div>
+                        <div class="timezone">${office.city}</div>
+                    </div>
+                </div>
+                <div class="time" data-timezone="${office.timezone}">--:--:--</div>
+                <div class="date" data-timezone="${office.timezone}">Loading...</div>
+                <div class="day" data-timezone="${office.timezone}">---</div>
+                <span class="status" data-timezone="${office.timezone}">---</span>
+            `;
+
+            return card;
+        }
+
+        function updateClocks() {
+            offices.forEach(office => {
+                const now = new Date();
+
+                try {
+                    // Format time
+                    const timeStr = now.toLocaleTimeString('en-US', {
+                        timeZone: office.timezone,
+                        hour12: true,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+
+                    // Format date
+                    const dateStr = now.toLocaleDateString('en-US', {
+                        timeZone: office.timezone,
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+
+                    // Format day
+                    const dayStr = now.toLocaleDateString('en-US', {
+                        timeZone: office.timezone,
+                        weekday: 'long'
+                    });
+
+                    // Get hour for work status
+                    const hour = parseInt(now.toLocaleTimeString('en-US', {
+                        timeZone: office.timezone,
+                        hour12: false,
+                        hour: '2-digit'
+                    }));
+
+                    const status = getWorkStatus(hour);
+
+                    // Update DOM elements
+                    const timeElements = document.querySelectorAll(`.time[data-timezone="${office.timezone}"]`);
+                    const dateElements = document.querySelectorAll(`.date[data-timezone="${office.timezone}"]`);
+                    const dayElements = document.querySelectorAll(`.day[data-timezone="${office.timezone}"]`);
+                    const statusElements = document.querySelectorAll(`.status[data-timezone="${office.timezone}"]`);
+
+                    timeElements.forEach(el => el.textContent = timeStr);
+                    dateElements.forEach(el => el.textContent = dateStr);
+                    dayElements.forEach(el => el.textContent = dayStr);
+                    statusElements.forEach(el => {
+                        el.textContent = status.text;
+                        el.className = `status ${status.class}`;
+                    });
+                } catch (error) {
+                    console.error(`Error updating clock for ${office.name}:`, error);
+                }
+            });
+        }
+
+        // Initialize clocks
+        function initClocks() {
+            const container = document.getElementById('clockContainer');
+            offices.forEach(office => {
+                container.appendChild(createClockCard(office));
+            });
+            updateClocks();
+            setInterval(updateClocks, 1000);
+        }
+
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', initClocks);
+    </script>
+</body>
+</html>
