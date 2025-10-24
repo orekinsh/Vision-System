@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperVerge World Clock - Mobile & Desktop View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .view-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .device-frame {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .device-title {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .desktop-frame {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            background: #333;
+            padding: 15px;
+            border-radius: 30px;
+            position: relative;
+        }
+
+        .mobile-notch {
+            width: 120px;
+            height: 20px;
+            background: #333;
+            border-radius: 0 0 15px 15px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .iframe-container {
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .desktop-frame .iframe-container {
+            height: 600px;
+        }
+
+        .mobile-frame .iframe-container {
+            height: 667px;
+            border-radius: 20px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .instructions {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4caf50;
+            color: white;
+            border-radius: 5px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .view-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .desktop-frame {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-frame {
+                width: 340px;
+            }
+
+            .mobile-frame .iframe-container {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HyperVerge World Clock</h1>
+        <p>Desktop & Mobile View Comparison</p>
+    </div>
+
+    <div class="view-container">
+        <div class="device-frame desktop-frame">
+            <div class="device-title">
+                Desktop View <span class="badge">Responsive Grid</span>
+            </div>
+            <div class="iframe-container">
+                <iframe src="world-clock.html" title="Desktop View"></iframe>
+            </div>
+        </div>
+
+        <div class="device-frame mobile-frame">
+            <div class="mobile-notch"></div>
+            <div class="device-title" style="color: white;">
+                Mobile View
+            </div>
+            <div class="iframe-container">
+                <iframe src="world-clock.html" title="Mobile View"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h2>Viewing Instructions</h2>
+
+        <h3>Currently Running:</h3>
+        <ul>
+            <li>HTTP Server: <code>http://localhost:8000</code></li>
+            <li>Main App: <code>http://localhost:8000/world-clock.html</code></li>
+            <li>This Comparison: <code>http://localhost:8000/world-clock-demo.html</code></li>
+        </ul>
+
+        <h3>To View in Browser:</h3>
+        <ul>
+            <li><strong>Desktop:</strong> Open <code>http://localhost:8000/world-clock.html</code></li>
+            <li><strong>Mobile Simulation:</strong> Use Chrome DevTools (F12) → Toggle Device Toolbar (Ctrl+Shift+M)</li>
+            <li><strong>Side-by-Side:</strong> Open <code>http://localhost:8000/world-clock-demo.html</code></li>
+        </ul>
+
+        <h3>Chrome DevTools Mobile Testing:</h3>
+        <ul>
+            <li>Press <code>F12</code> to open DevTools</li>
+            <li>Press <code>Ctrl+Shift+M</code> (or click device icon) to toggle device toolbar</li>
+            <li>Select device: iPhone 12 Pro, Pixel 5, iPad, etc.</li>
+            <li>Test different screen sizes and orientations</li>
+        </ul>
+
+        <h3>Responsive Breakpoints:</h3>
+        <ul>
+            <li><strong>Desktop:</strong> Multi-column grid layout (> 768px)</li>
+            <li><strong>Tablet:</strong> 2-column grid (768px - 1024px)</li>
+            <li><strong>Mobile:</strong> Single column stack (< 768px)</li>
+        </ul>
+
+        <h3>Features Visible on Mobile:</h3>
+        <ul>
+            <li>✓ Single-column card layout for easy scrolling</li>
+            <li>✓ Full-width clock cards</li>
+            <li>✓ Touch-friendly interface</li>
+            <li>✓ Optimized font sizes</li>
+            <li>✓ All features from desktop version</li>
+        </ul>
+    </div>
+
+    <script>
+        // Log server status
+        console.log('World Clock Demo loaded successfully');
+        console.log('Server running at: http://localhost:8000');
+        console.log('Main app: http://localhost:8000/world-clock.html');
+        console.log('Demo: http://localhost:8000/world-clock-demo.html');
+    </script>
+</body>
+</html>
