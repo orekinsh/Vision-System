@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>HyperVerge World Clock - Compact</title>
+    <style>
+        :root {
+            --primary-blue: #3B82F6;
+            --primary-blue-dark: #2563EB;
+            --primary-blue-light: #60A5FA;
+
+            /* Light mode */
+            --bg-primary: #F5F5F7;
+            --bg-widget: #FFFFFF;
+            --bg-widget-blur: rgba(255, 255, 255, 0.72);
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-tertiary: #C7C7CC;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+
+            /* Status colors */
+            --work-hours: #34C759;
+            --after-hours: #FF9500;
+            --night-time: #5856D6;
+            --weather-bg: rgba(59, 130, 246, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #000000;
+            --bg-widget: #1C1C1E;
+            --bg-widget-blur: rgba(28, 28, 30, 0.72);
+            --text-primary: #FFFFFF;
+            --text-secondary: #98989D;
+            --text-tertiary: #48484A;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.5);
+            --weather-bg: rgba(59, 130, 246, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            padding: 16px;
+            transition: background 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: var(--bg-widget);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-primary);
+        }
+
+        .widget-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .office-card {
+            background: var(--bg-widget);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .office-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .location-info {
+            flex: 1;
+        }
+
+        .flag {
+            font-size: 32px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .city-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+            margin-bottom: 2px;
+        }
+
+        .country-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-badge.work-hours {
+            background: var(--work-hours);
+            color: white;
+        }
+
+        .status-badge.after-hours {
+            background: var(--after-hours);
+            color: white;
+        }
+
+        .status-badge.night {
+            background: var(--night-time);
+            color: white;
+        }
+
+        .time-display {
+            font-size: 40px;
+            font-weight: 300;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        .date-info {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .weather-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--weather-bg);
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .weather-icon {
+            font-size: 20px;
+        }
+
+        .weather-temp {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .weather-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 24px;
+                max-width: 480px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>World Clock</h1>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5" stroke-width="2"/>
+                <path stroke-linecap="round" stroke-width="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <svg class="moon-icon" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="widget-container" id="widgetContainer"></div>
+
+    <div class="footer">
+        Auto-updates every second
+    </div>
+
+    <script>
+        const offices = [
+            { name: "India", city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: { temp: 28, condition: "Partly Cloudy", icon: "⛅" }},
+            { name: "Vietnam", city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: { temp: 32, condition: "Sunny", icon: "☀️" }},
+            { name: "Philippines", city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: { temp: 30, condition: "Cloudy", icon: "☁️" }},
+            { name: "Singapore", city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: { temp: 31, condition: "Rainy", icon: "🌧️" }},
+            { name: "Indonesia", city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: { temp: 29, condition: "Partly Cloudy", icon: "⛅" }},
+            { name: "Kenya", city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: { temp: 22, condition: "Sunny", icon: "☀️" }},
+            { name: "South Africa", city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: { temp: 18, condition: "Clear", icon: "🌤️" }},
+            { name: "USA", city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: { temp: 15, condition: "Cloudy", icon: "☁️" }},
+            { name: "USA", city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: { temp: 12, condition: "Clear", icon: "☀️" }},
+            { name: "USA", city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: { temp: 18, condition: "Foggy", icon: "🌫️" }}
+        ];
+
+        function getWorkStatus(hour) {
+            if (hour >= 9 && hour < 18) {
+                return { text: "Work", class: "work-hours" };
+            } else if (hour >= 18 && hour < 22) {
+                return { text: "After", class: "after-hours" };
+            } else {
+                return { text: "Night", class: "night" };
+            }
+        }
+
+        function createOfficeCard(office) {
+            return `
+                <div class="office-card">
+                    <div class="card-header">
+                        <div class="location-info">
+                            <div class="flag">${office.flag}</div>
+                            <div class="city-name">${office.city}</div>
+                            <div class="country-name">${office.name}</div>
+                        </div>
+                        <span class="status-badge" data-timezone="${office.timezone}">...</span>
+                    </div>
+                    <div class="time-display" data-timezone="${office.timezone}">--:--:--</div>
+                    <div class="date-info" data-timezone="${office.timezone}">Loading...</div>
+                    <div class="divider"></div>
+                    <div class="weather-strip">
+                        <span class="weather-icon">${office.weather.icon}</span>
+                        <span class="weather-temp">${office.weather.temp}°C</span>
+                        <span class="weather-desc">${office.weather.condition}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateClocks() {
+            const now = new Date();
+
+            offices.forEach(office => {
+                const timeStr = now.toLocaleTimeString('en-US', {
+                    timeZone: office.timezone,
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const dateStr = now.toLocaleDateString('en-US', {
+                    timeZone: office.timezone,
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const hour = parseInt(now.toLocaleTimeString('en-US', {
+                    timeZone: office.timezone,
+                    hour12: false,
+                    hour: '2-digit'
+                }));
+
+                const status = getWorkStatus(hour);
+
+                document.querySelectorAll(`.time-display[data-timezone="${office.timezone}"]`)
+                    .forEach(el => el.textContent = timeStr);
+
+                document.querySelectorAll(`.date-info[data-timezone="${office.timezone}"]`)
+                    .forEach(el => el.textContent = dateStr);
+
+                document.querySelectorAll(`.status-badge[data-timezone="${office.timezone}"]`)
+                    .forEach(el => {
+                        el.textContent = status.text;
+                        el.className = `status-badge ${status.class}`;
+                    });
+            });
+        }
+
+        function initClocks() {
+            const container = document.getElementById('widgetContainer');
+            container.innerHTML = offices.map(office => createOfficeCard(office)).join('');
+            updateClocks();
+            setInterval(updateClocks, 1000);
+        }
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.querySelector('.sun-icon');
+        const moonIcon = document.querySelector('.moon-icon');
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initClocks);
+    </script>
+</body>
+</html>

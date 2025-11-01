@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperVerge World Clock - Compact vs Spacious Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .version-section {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .version-title {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3B82F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #3B82F6;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.6em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .iframe-container {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #F5F5F7;
+            height: 700px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .features-list {
+            margin-top: 20px;
+            padding: 20px;
+            background: #F5F5F7;
+            border-radius: 12px;
+        }
+
+        .features-list h3 {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            color: #1D1D1F;
+        }
+
+        .features-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            color: #86868B;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            color: #3B82F6;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .quick-links {
+            max-width: 1400px;
+            margin: 30px auto;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .link-button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: white;
+            color: #3B82F6;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            border: 2px solid #3B82F6;
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.2);
+        }
+
+        .link-button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1200px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .iframe-container {
+                height: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .quick-links {
+                flex-direction: column;
+            }
+
+            .iframe-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 HyperVerge World Clock</h1>
+        <p>Compact vs Spacious Design Comparison</p>
+    </div>
+
+    <div class="quick-links">
+        <a href="world-clock-compact.html" class="link-button" target="_blank">🔸 Open Compact Version</a>
+        <a href="world-clock-spacious.html" class="link-button" target="_blank">🔹 Open Spacious Version</a>
+    </div>
+
+    <div class="comparison-container">
+        <div class="version-section">
+            <div class="version-title">
+                Compact Design
+                <span class="badge">Dense</span>
+            </div>
+            <div class="iframe-container">
+                <iframe src="world-clock-compact.html" title="Compact Version"></iframe>
+            </div>
+            <div class="features-list">
+                <h3>Best For:</h3>
+                <ul>
+                    <li>Seeing more info at a glance</li>
+                    <li>Quick status checks</li>
+                    <li>Information-dense displays</li>
+                    <li>Smaller screens with limited space</li>
+                    <li>Dashboard integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="version-section">
+            <div class="version-title">
+                Spacious Design
+                <span class="badge">Minimal</span>
+            </div>
+            <div class="iframe-container">
+                <iframe src="world-clock-spacious.html" title="Spacious Version"></iframe>
+            </div>
+            <div class="features-list">
+                <h3>Best For:</h3>
+                <ul>
+                    <li>Focused, distraction-free viewing</li>
+                    <li>Easier readability</li>
+                    <li>Premium, polished aesthetic</li>
+                    <li>Presentations and displays</li>
+                    <li>Mobile-first experience</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; color: #86868B; font-size: 0.95em;">
+        <p>Both versions feature:</p>
+        <p><strong>Light/Dark Mode Toggle • Real-time Updates • Weather Info • iOS Widget Design</strong></p>
+    </div>
+</body>
+</html>
