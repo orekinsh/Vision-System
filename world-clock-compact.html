@@ -232,17 +232,18 @@
     <div class="widget-container" id="widgetContainer"></div>
 
     <script>
+        // Ordered east from India (following the sun)
         const offices = [
-            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳" },
-            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳" },
-            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭" },
-            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬" },
-            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩" },
-            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪" },
-            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦" },
-            { city: "New York", timezone: "America/New_York", flag: "🇺🇸" },
-            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸" },
-            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸" }
+            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳" },        // UTC+5:30
+            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳" },  // UTC+7
+            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩" },          // UTC+7
+            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬" },      // UTC+8
+            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭" },            // UTC+8
+            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸" }, // UTC-8
+            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸" },   // UTC-7
+            { city: "New York", timezone: "America/New_York", flag: "🇺🇸" },     // UTC-5
+            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦" }, // UTC+2
+            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪" }         // UTC+3
         ];
 
         function getTimePeriod(hour) {
