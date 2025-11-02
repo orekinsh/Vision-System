@@ -16,11 +16,13 @@
             --border-color: rgba(0, 0, 0, 0.08);
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-            /* Time-based background tints (light mode) */
-            --early-hours: rgba(173, 216, 230, 0.3); /* Light blue */
-            --working-hours: rgba(255, 235, 59, 0.25); /* Yellow */
-            --after-hours: rgba(25, 118, 210, 0.2); /* Dark blue */
-            --night: rgba(0, 0, 0, 0.85); /* Black */
+            /* Time-based background tints - Minimalist Monochrome */
+            --dawn: rgba(232, 232, 232, 0.6); /* Light gray */
+            --morning: rgba(255, 255, 255, 0.8); /* White */
+            --afternoon: rgba(245, 245, 220, 0.7); /* Light beige */
+            --evening: rgba(192, 192, 192, 0.5); /* Medium gray */
+            --dusk: rgba(105, 105, 105, 0.4); /* Dark gray */
+            --night: rgba(44, 44, 44, 0.9); /* Near black */
         }
 
         [data-theme="dark"] {
@@ -31,11 +33,13 @@
             --border-color: rgba(255, 255, 255, 0.12);
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
-            /* Time-based background tints (dark mode) */
-            --early-hours: rgba(173, 216, 230, 0.2);
-            --working-hours: rgba(255, 235, 59, 0.15);
-            --after-hours: rgba(25, 118, 210, 0.25);
-            --night: rgba(0, 0, 0, 0.7);
+            /* Time-based background tints - Minimalist Monochrome (dark mode) */
+            --dawn: rgba(80, 80, 80, 0.5);
+            --morning: rgba(100, 100, 100, 0.4);
+            --afternoon: rgba(90, 90, 85, 0.45);
+            --evening: rgba(70, 70, 70, 0.5);
+            --dusk: rgba(50, 50, 50, 0.6);
+            --night: rgba(20, 20, 20, 0.9);
         }
 
         * {
@@ -120,23 +124,33 @@
             transform: scale(0.97);
         }
 
-        /* Time period backgrounds */
-        .office-card.early-hours {
-            background: var(--early-hours);
+        /* Time period backgrounds - Minimalist Monochrome */
+        .office-card.dawn {
+            background: var(--dawn);
         }
 
-        .office-card.working-hours {
-            background: var(--working-hours);
+        .office-card.morning {
+            background: var(--morning);
         }
 
-        .office-card.after-hours {
-            background: var(--after-hours);
+        .office-card.afternoon {
+            background: var(--afternoon);
+        }
+
+        .office-card.evening {
+            background: var(--evening);
+        }
+
+        .office-card.dusk {
+            background: var(--dusk);
         }
 
         .office-card.night {
             background: var(--night);
         }
 
+        .office-card.dusk .city-name,
+        .office-card.dusk .time-display,
         .office-card.night .city-name,
         .office-card.night .time-display {
             color: #FFFFFF;
@@ -247,14 +261,18 @@
         ];
 
         function getTimePeriod(hour) {
-            if (hour >= 6 && hour < 9) {
-                return "early-hours"; // Light blue
-            } else if (hour >= 9 && hour < 18) {
-                return "working-hours"; // Yellow
-            } else if (hour >= 18 && hour < 22) {
-                return "after-hours"; // Dark blue
+            if (hour >= 5 && hour < 8) {
+                return "dawn"; // Light gray
+            } else if (hour >= 8 && hour < 12) {
+                return "morning"; // White
+            } else if (hour >= 12 && hour < 17) {
+                return "afternoon"; // Light beige
+            } else if (hour >= 17 && hour < 20) {
+                return "evening"; // Medium gray
+            } else if (hour >= 20 && hour < 22) {
+                return "dusk"; // Dark gray
             } else {
-                return "night"; // Black
+                return "night"; // Near black
             }
         }
 
