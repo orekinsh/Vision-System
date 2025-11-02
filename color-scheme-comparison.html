@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Color Scheme Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+            background: #F5F5F7;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .carousel-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .slide-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1D1D1F;
+            margin-bottom: 4px;
+        }
+
+        .slide-subtitle {
+            font-size: 12px;
+            color: #86868B;
+        }
+
+        .widget-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .office-card {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .office-card.night .city-name,
+        .office-card.night .time-display {
+            color: #FFFFFF;
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .flag {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .city-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1D1D1F;
+            letter-spacing: -0.1px;
+        }
+
+        .time-display {
+            font-size: 28px;
+            font-weight: 300;
+            color: #1D1D1F;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        /* Navigation */
+        .nav-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-dot.active {
+            background: #3B82F6;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-arrow:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .nav-arrow.left {
+            left: 12px;
+        }
+
+        .nav-arrow.right {
+            right: 12px;
+        }
+
+        .nav-arrow svg {
+            width: 20px;
+            height: 20px;
+            color: #1D1D1F;
+        }
+
+        /* Option 1: Natural Daylight Cycle */
+        .scheme-1 .dawn { background: rgba(255, 179, 186, 0.4); }
+        .scheme-1 .morning { background: rgba(255, 255, 186, 0.4); }
+        .scheme-1 .afternoon { background: rgba(255, 215, 0, 0.3); }
+        .scheme-1 .evening { background: rgba(199, 160, 230, 0.35); }
+        .scheme-1 .dusk { background: rgba(91, 125, 177, 0.35); }
+        .scheme-1 .night { background: rgba(26, 26, 46, 0.9); }
+
+        /* Option 2: Minimalist Monochrome */
+        .scheme-2 .dawn { background: rgba(232, 232, 232, 0.6); }
+        .scheme-2 .morning { background: rgba(255, 255, 255, 0.8); }
+        .scheme-2 .afternoon { background: rgba(245, 245, 220, 0.7); }
+        .scheme-2 .evening { background: rgba(192, 192, 192, 0.5); }
+        .scheme-2 .dusk { background: rgba(105, 105, 105, 0.4); }
+        .scheme-2 .night { background: rgba(44, 44, 44, 0.9); }
+
+        /* Option 3: Productivity Focus */
+        .scheme-3 .early { background: rgba(168, 216, 234, 0.4); }
+        .scheme-3 .peak { background: rgba(144, 238, 144, 0.35); }
+        .scheme-3 .mid { background: rgba(255, 230, 109, 0.35); }
+        .scheme-3 .wind-down { background: rgba(255, 179, 71, 0.35); }
+        .scheme-3 .rest { background: rgba(106, 76, 147, 0.85); }
+
+        /* Option 4: Refined Current (Warm) */
+        .scheme-4 .early-hours { background: rgba(135, 206, 235, 0.35); }
+        .scheme-4 .working-hours { background: rgba(255, 229, 92, 0.3); }
+        .scheme-4 .after-hours { background: rgba(255, 154, 86, 0.3); }
+        .scheme-4 .night { background: rgba(15, 28, 46, 0.9); }
+
+        @media (min-width: 600px) {
+            .carousel-slide {
+                padding: 16px;
+            }
+
+            .slide-title {
+                font-size: 24px;
+            }
+
+            .slide-subtitle {
+                font-size: 14px;
+            }
+
+            .time-display {
+                font-size: 32px;
+            }
+
+            .city-name {
+                font-size: 14px;
+            }
+
+            .flag {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-container">
+        <div class="carousel-track" id="carouselTrack">
+            <!-- Slide 1: Natural Daylight Cycle -->
+            <div class="carousel-slide scheme-1">
+                <div class="slide-header">
+                    <div class="slide-title">Option 1: Natural Daylight Cycle</div>
+                    <div class="slide-subtitle">Dawn • Morning • Afternoon • Evening • Dusk • Night</div>
+                </div>
+                <div class="widget-container" id="container1"></div>
+            </div>
+
+            <!-- Slide 2: Minimalist Monochrome -->
+            <div class="carousel-slide scheme-2">
+                <div class="slide-header">
+                    <div class="slide-title">Option 2: Minimalist Monochrome</div>
+                    <div class="slide-subtitle">Subtle grayscale gradient</div>
+                </div>
+                <div class="widget-container" id="container2"></div>
+            </div>
+
+            <!-- Slide 3: Productivity Focus -->
+            <div class="carousel-slide scheme-3">
+                <div class="slide-header">
+                    <div class="slide-title">Option 3: Productivity Focus</div>
+                    <div class="slide-subtitle">Early • Peak • Mid • Wind Down • Rest</div>
+                </div>
+                <div class="widget-container" id="container3"></div>
+            </div>
+
+            <!-- Slide 4: Refined Current -->
+            <div class="carousel-slide scheme-4">
+                <div class="slide-header">
+                    <div class="slide-title">Option 4: Refined Current (Warm)</div>
+                    <div class="slide-subtitle">Sky Blue • Warm Yellow • Sunset Orange • Deep Navy</div>
+                </div>
+                <div class="widget-container" id="container4"></div>
+            </div>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <div class="nav-arrow left" id="prevBtn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </div>
+        <div class="nav-arrow right" id="nextBtn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+
+        <!-- Navigation Dots -->
+        <div class="nav-dots" id="navDots"></div>
+    </div>
+
+    <script>
+        const offices = [
+            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳" },
+            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳" },
+            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩" },
+            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬" },
+            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭" },
+            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸" },
+            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸" },
+            { city: "New York", timezone: "America/New_York", flag: "🇺🇸" },
+            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦" },
+            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪" }
+        ];
+
+        // Period classification functions for each scheme
+        const schemes = {
+            1: (hour) => { // Natural Daylight
+                if (hour >= 5 && hour < 8) return "dawn";
+                if (hour >= 8 && hour < 12) return "morning";
+                if (hour >= 12 && hour < 17) return "afternoon";
+                if (hour >= 17 && hour < 20) return "evening";
+                if (hour >= 20 && hour < 22) return "dusk";
+                return "night";
+            },
+            2: (hour) => { // Minimalist Monochrome
+                if (hour >= 5 && hour < 8) return "dawn";
+                if (hour >= 8 && hour < 12) return "morning";
+                if (hour >= 12 && hour < 17) return "afternoon";
+                if (hour >= 17 && hour < 20) return "evening";
+                if (hour >= 20 && hour < 22) return "dusk";
+                return "night";
+            },
+            3: (hour) => { // Productivity Focus
+                if (hour >= 5 && hour < 9) return "early";
+                if (hour >= 9 && hour < 14) return "peak";
+                if (hour >= 14 && hour < 18) return "mid";
+                if (hour >= 18 && hour < 21) return "wind-down";
+                return "rest";
+            },
+            4: (hour) => { // Refined Current
+                if (hour >= 6 && hour < 9) return "early-hours";
+                if (hour >= 9 && hour < 18) return "working-hours";
+                if (hour >= 18 && hour < 22) return "after-hours";
+                return "night";
+            }
+        };
+
+        function createOfficeCard(office) {
+            return `
+                <div class="office-card" data-timezone="${office.timezone}">
+                    <div class="location-header">
+                        <span class="flag">${office.flag}</span>
+                        <span class="city-name">${office.city}</span>
+                    </div>
+                    <div class="time-display" data-time="${office.timezone}">--:--</div>
+                </div>
+            `;
+        }
+
+        function updateClocks(containerId, schemeNum) {
+            const now = new Date();
+            const container = document.getElementById(containerId);
+
+            offices.forEach(office => {
+                const timeStr = now.toLocaleTimeString('en-US', {
+                    timeZone: office.timezone,
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const hour = parseInt(now.toLocaleTimeString('en-US', {
+                    timeZone: office.timezone,
+                    hour12: false,
+                    hour: '2-digit'
+                }));
+
+                const period = schemes[schemeNum](hour);
+
+                const card = container.querySelector(`[data-timezone="${office.timezone}"]`);
+                const timeEl = container.querySelector(`[data-time="${office.timezone}"]`);
+
+                if (card) {
+                    card.className = `office-card ${period}`;
+                }
+                if (timeEl) {
+                    timeEl.textContent = timeStr;
+                }
+            });
+        }
+
+        function initContainers() {
+            for (let i = 1; i <= 4; i++) {
+                const container = document.getElementById(`container${i}`);
+                container.innerHTML = offices.map(office => createOfficeCard(office)).join('');
+                updateClocks(`container${i}`, i);
+            }
+            setInterval(() => {
+                for (let i = 1; i <= 4; i++) {
+                    updateClocks(`container${i}`, i);
+                }
+            }, 60000);
+        }
+
+        // Carousel functionality
+        let currentSlide = 0;
+        const totalSlides = 4;
+        const track = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const navDots = document.getElementById('navDots');
+
+        // Create navigation dots
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = `nav-dot ${i === 0 ? 'active' : ''}`;
+            dot.addEventListener('click', () => goToSlide(i));
+            navDots.appendChild(dot);
+        }
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function goToSlide(index) {
+            currentSlide = Math.max(0, Math.min(index, totalSlides - 1));
+            updateCarousel();
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateCarousel();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateCarousel();
+            }
+        });
+
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        track.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        track.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchStartX - touchEndX > swipeThreshold) {
+                // Swipe left - next slide
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    updateCarousel();
+                }
+            }
+            if (touchEndX - touchStartX > swipeThreshold) {
+                // Swipe right - previous slide
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateCarousel();
+                }
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevBtn.click();
+            } else if (e.key === 'ArrowRight') {
+                nextBtn.click();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', initContainers);
+    </script>
+</body>
+</html>
