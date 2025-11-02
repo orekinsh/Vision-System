@@ -545,6 +545,123 @@
             }
         }
 
+        // Gradient Selection System
+        const gradientMaps = {
+            'sky': [
+                'rgba(26, 26, 46, 0.9)',      // Night
+                'rgba(255, 107, 157, 0.5)',   // Dawn pink
+                'rgba(255, 160, 122, 0.5)',   // Dawn orange
+                'rgba(135, 206, 235, 0.4)',   // Sky blue
+                'rgba(135, 206, 235, 0.4)',   // Sky blue
+                'rgba(255, 140, 66, 0.5)',    // Sunset orange
+                'rgba(192, 108, 132, 0.6)',   // Sunset pink
+                'rgba(26, 26, 46, 0.9)',      // Night
+                'rgba(26, 26, 46, 0.9)',      // Night
+                'rgba(26, 26, 46, 0.9)'       // Night
+            ],
+            'monochrome': [
+                'rgba(44, 44, 44, 0.9)',      // Near black
+                'rgba(80, 80, 80, 0.7)',      // Dark gray
+                'rgba(128, 128, 128, 0.5)',   // Medium gray
+                'rgba(192, 192, 192, 0.4)',   // Light gray
+                'rgba(255, 255, 255, 0.8)',   // White
+                'rgba(192, 192, 192, 0.4)',   // Light gray
+                'rgba(128, 128, 128, 0.5)',   // Medium gray
+                'rgba(80, 80, 80, 0.7)',      // Dark gray
+                'rgba(44, 44, 44, 0.9)',      // Near black
+                'rgba(44, 44, 44, 0.9)'       // Near black
+            ],
+            'warm-cool': [
+                'rgba(44, 62, 80, 0.9)',      // Cool dark
+                'rgba(52, 152, 219, 0.5)',    // Cool blue
+                'rgba(255, 217, 61, 0.4)',    // Warm yellow
+                'rgba(255, 107, 107, 0.5)',   // Warm red
+                'rgba(255, 217, 61, 0.4)',    // Warm yellow
+                'rgba(255, 217, 61, 0.4)',    // Warm yellow
+                'rgba(52, 152, 219, 0.5)',    // Cool blue
+                'rgba(44, 62, 80, 0.9)',      // Cool dark
+                'rgba(44, 62, 80, 0.9)',      // Cool dark
+                'rgba(44, 62, 80, 0.9)'       // Cool dark
+            ],
+            'subtle': [
+                'rgba(245, 245, 240, 0.7)',   // Soft white
+                'rgba(232, 232, 227, 0.6)',   // Pale beige
+                'rgba(208, 208, 203, 0.5)',   // Subtle gray
+                'rgba(232, 232, 227, 0.6)',   // Pale beige
+                'rgba(245, 245, 240, 0.7)',   // Soft white
+                'rgba(245, 245, 240, 0.7)',   // Soft white
+                'rgba(232, 232, 227, 0.6)',   // Pale beige
+                'rgba(208, 208, 203, 0.5)',   // Subtle gray
+                'rgba(232, 232, 227, 0.6)',   // Pale beige
+                'rgba(245, 245, 240, 0.7)'    // Soft white
+            ],
+            'ocean': [
+                'rgba(10, 36, 99, 0.9)',      // Deep ocean
+                'rgba(62, 146, 204, 0.5)',    // Ocean blue
+                'rgba(125, 211, 192, 0.4)',   // Turquoise
+                'rgba(248, 170, 75, 0.5)',    // Sunset orange
+                'rgba(255, 101, 66, 0.5)',    // Warm coral
+                'rgba(248, 170, 75, 0.5)',    // Sunset orange
+                'rgba(125, 211, 192, 0.4)',   // Turquoise
+                'rgba(62, 146, 204, 0.5)',    // Ocean blue
+                'rgba(10, 36, 99, 0.9)',      // Deep ocean
+                'rgba(10, 36, 99, 0.9)'       // Deep ocean
+            ],
+            'nordic': [
+                'rgba(232, 235, 233, 0.6)',   // Pale gray
+                'rgba(212, 217, 214, 0.6)',   // Muted gray-green
+                'rgba(201, 207, 201, 0.5)',   // Soft gray
+                'rgba(245, 245, 245, 0.8)',   // Almost white
+                'rgba(245, 245, 245, 0.8)',   // Almost white
+                'rgba(201, 207, 201, 0.5)',   // Soft gray
+                'rgba(212, 217, 214, 0.6)',   // Muted gray-green
+                'rgba(232, 235, 233, 0.6)',   // Pale gray
+                'rgba(212, 217, 214, 0.6)',   // Muted gray-green
+                'rgba(201, 207, 201, 0.5)'    // Soft gray
+            ]
+        };
+
+        let currentGradient = null;
+
+        function applyGradient(gradientName) {
+            currentGradient = gradientName;
+            const colors = gradientMaps[gradientName];
+            const cards = document.querySelectorAll('.office-card');
+
+            cards.forEach((card, index) => {
+                card.style.background = colors[index];
+
+                // Adjust text color for darker backgrounds
+                const isDark = gradientName === 'sky' || gradientName === 'monochrome' ||
+                               gradientName === 'warm-cool' || gradientName === 'ocean';
+                const isFirstOrLast = index === 0 || index >= 7;
+
+                if (isDark && isFirstOrLast) {
+                    card.querySelector('.city-name').style.color = '#FFFFFF';
+                    card.querySelector('.time-display').style.color = '#FFFFFF';
+                } else {
+                    card.querySelector('.city-name').style.color = '';
+                    card.querySelector('.time-display').style.color = '';
+                }
+            });
+
+            // Update active state
+            document.querySelectorAll('.gradient-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-gradient="${gradientName}"]`).classList.add('active');
+        }
+
+        // Add click handlers to gradient options
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.gradient-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const gradientName = option.dataset.gradient;
+                    applyGradient(gradientName);
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', initClocks);
     </script>
 </body>
