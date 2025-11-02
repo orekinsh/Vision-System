@@ -8,8 +8,6 @@
     <title>HyperVerge World Clock</title>
     <style>
         :root {
-            --primary-blue: #3B82F6;
-
             /* Light mode */
             --bg-primary: #F5F5F7;
             --bg-widget: #FFFFFF;
@@ -18,10 +16,11 @@
             --border-color: rgba(0, 0, 0, 0.08);
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-            /* Status colors */
-            --work-hours: #34C759;
-            --after-hours: #FF9500;
-            --night-time: #5856D6;
+            /* Time-based background tints (light mode) */
+            --early-hours: rgba(173, 216, 230, 0.3); /* Light blue */
+            --working-hours: rgba(255, 235, 59, 0.25); /* Yellow */
+            --after-hours: rgba(25, 118, 210, 0.2); /* Dark blue */
+            --night: rgba(0, 0, 0, 0.85); /* Black */
         }
 
         [data-theme="dark"] {
@@ -31,6 +30,12 @@
             --text-secondary: #98989D;
             --border-color: rgba(255, 255, 255, 0.12);
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+            /* Time-based background tints (dark mode) */
+            --early-hours: rgba(173, 216, 230, 0.2);
+            --working-hours: rgba(255, 235, 59, 0.15);
+            --after-hours: rgba(25, 118, 210, 0.25);
+            --night: rgba(0, 0, 0, 0.7);
         }
 
         * {
@@ -103,7 +108,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 16px;
-            padding: 10px;
+            padding: 12px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -115,73 +120,54 @@
             transform: scale(0.97);
         }
 
-        .weather-icon {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 16px;
-            opacity: 0.5;
+        /* Time period backgrounds */
+        .office-card.early-hours {
+            background: var(--early-hours);
+        }
+
+        .office-card.working-hours {
+            background: var(--working-hours);
+        }
+
+        .office-card.after-hours {
+            background: var(--after-hours);
+        }
+
+        .office-card.night {
+            background: var(--night);
+        }
+
+        .office-card.night .city-name,
+        .office-card.night .time-display {
+            color: #FFFFFF;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 5px;
+            margin-bottom: 8px;
         }
 
         .flag {
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1;
         }
 
         .city-name {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-primary);
-            letter-spacing: -0.2px;
+            letter-spacing: -0.1px;
         }
 
         .time-display {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 300;
             color: var(--text-primary);
-            letter-spacing: -0.8px;
+            letter-spacing: -1px;
             font-variant-numeric: tabular-nums;
-            margin-bottom: 4px;
             line-height: 1;
-        }
-
-        .date-info {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: 0.1px;
-            text-transform: uppercase;
-        }
-
-        .status-badge.work-hours {
-            background: var(--work-hours);
-            color: white;
-        }
-
-        .status-badge.after-hours {
-            background: var(--after-hours);
-            color: white;
-        }
-
-        .status-badge.night {
-            background: var(--night-time);
-            color: white;
         }
 
         @media (min-width: 600px) {
@@ -220,19 +206,11 @@
             }
 
             .city-name {
-                font-size: 16px;
-            }
-
-            .date-info {
-                font-size: 12px;
+                font-size: 14px;
             }
 
             .flag {
-                font-size: 24px;
-            }
-
-            .weather-icon {
-                font-size: 18px;
+                font-size: 20px;
             }
         }
     </style>
@@ -255,39 +233,38 @@
 
     <script>
         const offices = [
-            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: "⛅" },
-            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: "☀️" },
-            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: "☁️" },
-            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: "🌧️" },
-            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: "⛅" },
-            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: "☀️" },
-            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: "🌤️" },
-            { city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: "☁️" },
-            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: "☀️" },
-            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: "🌫️" }
+            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳" },
+            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳" },
+            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭" },
+            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬" },
+            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩" },
+            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪" },
+            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦" },
+            { city: "New York", timezone: "America/New_York", flag: "🇺🇸" },
+            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸" },
+            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸" }
         ];
 
-        function getWorkStatus(hour) {
-            if (hour >= 9 && hour < 18) {
-                return { text: "Work", class: "work-hours" };
+        function getTimePeriod(hour) {
+            if (hour >= 6 && hour < 9) {
+                return "early-hours"; // Light blue
+            } else if (hour >= 9 && hour < 18) {
+                return "working-hours"; // Yellow
             } else if (hour >= 18 && hour < 22) {
-                return { text: "After", class: "after-hours" };
+                return "after-hours"; // Dark blue
             } else {
-                return { text: "Night", class: "night" };
+                return "night"; // Black
             }
         }
 
         function createOfficeCard(office) {
             return `
-                <div class="office-card">
-                    <span class="weather-icon">${office.weather}</span>
+                <div class="office-card" data-timezone="${office.timezone}">
                     <div class="location-header">
                         <span class="flag">${office.flag}</span>
                         <span class="city-name">${office.city}</span>
                     </div>
-                    <div class="time-display" data-timezone="${office.timezone}">--:--</div>
-                    <div class="date-info" data-timezone="${office.timezone}">Loading...</div>
-                    <span class="status-badge" data-timezone="${office.timezone}">...</span>
+                    <div class="time-display" data-time="${office.timezone}">--:--</div>
                 </div>
             `;
         }
@@ -296,18 +273,12 @@
             const now = new Date();
 
             offices.forEach(office => {
+                // 24-hour format
                 const timeStr = now.toLocaleTimeString('en-US', {
                     timeZone: office.timezone,
-                    hour12: true,
+                    hour12: false,
                     hour: '2-digit',
                     minute: '2-digit'
-                });
-
-                const dateStr = now.toLocaleDateString('en-US', {
-                    timeZone: office.timezone,
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric'
                 });
 
                 const hour = parseInt(now.toLocaleTimeString('en-US', {
@@ -316,18 +287,16 @@
                     hour: '2-digit'
                 }));
 
-                const status = getWorkStatus(hour);
+                const period = getTimePeriod(hour);
 
-                document.querySelectorAll(`.time-display[data-timezone="${office.timezone}"]`)
+                // Update time
+                document.querySelectorAll(`[data-time="${office.timezone}"]`)
                     .forEach(el => el.textContent = timeStr);
 
-                document.querySelectorAll(`.date-info[data-timezone="${office.timezone}"]`)
-                    .forEach(el => el.textContent = dateStr);
-
-                document.querySelectorAll(`.status-badge[data-timezone="${office.timezone}"]`)
-                    .forEach(el => {
-                        el.textContent = status.text;
-                        el.className = `status-badge ${status.class}`;
+                // Update card background
+                document.querySelectorAll(`[data-timezone="${office.timezone}"]`)
+                    .forEach(card => {
+                        card.className = `office-card ${period}`;
                     });
             });
         }
