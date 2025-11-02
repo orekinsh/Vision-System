@@ -27,7 +27,6 @@
             --work-hours: #34C759;
             --after-hours: #FF9500;
             --night-time: #5856D6;
-            --weather-bg: rgba(59, 130, 246, 0.1);
         }
 
         [data-theme="dark"] {
@@ -40,7 +39,6 @@
             --border-color: rgba(255, 255, 255, 0.12);
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.5);
-            --weather-bg: rgba(59, 130, 246, 0.2);
         }
 
         * {
@@ -100,9 +98,11 @@
         }
 
         .widget-container {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .office-card {
@@ -114,31 +114,29 @@
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .office-card:active {
             transform: scale(0.98);
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .location-info {
-            flex: 1;
+        .weather-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
+            opacity: 0.7;
         }
 
         .flag {
-            font-size: 32px;
+            font-size: 28px;
             line-height: 1;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .city-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
             letter-spacing: -0.3px;
@@ -146,19 +144,37 @@
         }
 
         .country-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .time-display {
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 6px;
+            line-height: 1.1;
+        }
+
+        .date-info {
             font-size: 13px;
             color: var(--text-secondary);
             font-weight: 500;
+            margin-bottom: 8px;
         }
 
         .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
             font-weight: 600;
             letter-spacing: 0.2px;
             text-transform: uppercase;
-            white-space: nowrap;
         }
 
         .status-badge.work-hours {
@@ -176,55 +192,6 @@
             color: white;
         }
 
-        .time-display {
-            font-size: 40px;
-            font-weight: 300;
-            color: var(--text-primary);
-            letter-spacing: -1px;
-            font-variant-numeric: tabular-nums;
-            margin-bottom: 4px;
-            line-height: 1.1;
-        }
-
-        .date-info {
-            font-size: 15px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 12px;
-        }
-
-        .weather-strip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--weather-bg);
-            border-radius: 12px;
-            margin-top: 8px;
-        }
-
-        .weather-icon {
-            font-size: 20px;
-        }
-
-        .weather-temp {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--primary-blue);
-        }
-
-        .weather-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-left: auto;
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 8px 0;
-        }
-
         .footer {
             text-align: center;
             margin-top: 24px;
@@ -233,11 +200,19 @@
             font-size: 13px;
         }
 
+        @media (max-width: 600px) {
+            .widget-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (min-width: 768px) {
             body {
                 padding: 24px;
-                max-width: 480px;
-                margin: 0 auto;
+            }
+
+            .header h1 {
+                font-size: 32px;
             }
         }
     </style>
@@ -259,21 +234,21 @@
     <div class="widget-container" id="widgetContainer"></div>
 
     <div class="footer">
-        Auto-updates every second
+        Auto-updates every minute
     </div>
 
     <script>
         const offices = [
-            { name: "India", city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: { temp: 28, condition: "Partly Cloudy", icon: "⛅" }},
-            { name: "Vietnam", city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: { temp: 32, condition: "Sunny", icon: "☀️" }},
-            { name: "Philippines", city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: { temp: 30, condition: "Cloudy", icon: "☁️" }},
-            { name: "Singapore", city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: { temp: 31, condition: "Rainy", icon: "🌧️" }},
-            { name: "Indonesia", city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: { temp: 29, condition: "Partly Cloudy", icon: "⛅" }},
-            { name: "Kenya", city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: { temp: 22, condition: "Sunny", icon: "☀️" }},
-            { name: "South Africa", city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: { temp: 18, condition: "Clear", icon: "🌤️" }},
-            { name: "USA", city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: { temp: 15, condition: "Cloudy", icon: "☁️" }},
-            { name: "USA", city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: { temp: 12, condition: "Clear", icon: "☀️" }},
-            { name: "USA", city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: { temp: 18, condition: "Foggy", icon: "🌫️" }}
+            { name: "India", city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: "⛅" },
+            { name: "Vietnam", city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: "☀️" },
+            { name: "Philippines", city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: "☁️" },
+            { name: "Singapore", city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: "🌧️" },
+            { name: "Indonesia", city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: "⛅" },
+            { name: "Kenya", city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: "☀️" },
+            { name: "South Africa", city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: "🌤️" },
+            { name: "USA", city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: "☁️" },
+            { name: "USA", city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: "☀️" },
+            { name: "USA", city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: "🌫️" }
         ];
 
         function getWorkStatus(hour) {
@@ -289,22 +264,13 @@
         function createOfficeCard(office) {
             return `
                 <div class="office-card">
-                    <div class="card-header">
-                        <div class="location-info">
-                            <div class="flag">${office.flag}</div>
-                            <div class="city-name">${office.city}</div>
-                            <div class="country-name">${office.name}</div>
-                        </div>
-                        <span class="status-badge" data-timezone="${office.timezone}">...</span>
-                    </div>
-                    <div class="time-display" data-timezone="${office.timezone}">--:--:--</div>
+                    <span class="weather-icon">${office.weather}</span>
+                    <div class="flag">${office.flag}</div>
+                    <div class="city-name">${office.city}</div>
+                    <div class="country-name">${office.name}</div>
+                    <div class="time-display" data-timezone="${office.timezone}">--:--</div>
                     <div class="date-info" data-timezone="${office.timezone}">Loading...</div>
-                    <div class="divider"></div>
-                    <div class="weather-strip">
-                        <span class="weather-icon">${office.weather.icon}</span>
-                        <span class="weather-temp">${office.weather.temp}°C</span>
-                        <span class="weather-desc">${office.weather.condition}</span>
-                    </div>
+                    <span class="status-badge" data-timezone="${office.timezone}">...</span>
                 </div>
             `;
         }
@@ -313,12 +279,12 @@
             const now = new Date();
 
             offices.forEach(office => {
+                // Time without seconds
                 const timeStr = now.toLocaleTimeString('en-US', {
                     timeZone: office.timezone,
                     hour12: true,
                     hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+                    minute: '2-digit'
                 });
 
                 const dateStr = now.toLocaleDateString('en-US', {
@@ -354,7 +320,7 @@
             const container = document.getElementById('widgetContainer');
             container.innerHTML = offices.map(office => createOfficeCard(office)).join('');
             updateClocks();
-            setInterval(updateClocks, 1000);
+            setInterval(updateClocks, 60000); // Update every minute
         }
 
         // Theme toggle
