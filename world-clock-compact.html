@@ -15,13 +15,10 @@
             /* Light mode */
             --bg-primary: #F5F5F7;
             --bg-widget: #FFFFFF;
-            --bg-widget-blur: rgba(255, 255, 255, 0.72);
             --text-primary: #1D1D1F;
             --text-secondary: #86868B;
-            --text-tertiary: #C7C7CC;
             --border-color: rgba(0, 0, 0, 0.08);
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
 
             /* Status colors */
             --work-hours: #34C759;
@@ -32,13 +29,10 @@
         [data-theme="dark"] {
             --bg-primary: #000000;
             --bg-widget: #1C1C1E;
-            --bg-widget-blur: rgba(28, 28, 30, 0.72);
             --text-primary: #FFFFFF;
             --text-secondary: #98989D;
-            --text-tertiary: #48484A;
             --border-color: rgba(255, 255, 255, 0.12);
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.5);
         }
 
         * {
@@ -109,8 +103,8 @@
             background: var(--bg-widget);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 16px;
+            border-radius: 18px;
+            padding: 14px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -123,16 +117,22 @@
 
         .weather-icon {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 20px;
-            opacity: 0.7;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .flag {
-            font-size: 28px;
+            font-size: 24px;
             line-height: 1;
-            margin-bottom: 8px;
         }
 
         .city-name {
@@ -140,14 +140,6 @@
             font-weight: 600;
             color: var(--text-primary);
             letter-spacing: -0.3px;
-            margin-bottom: 2px;
-        }
-
-        .country-name {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 12px;
         }
 
         .time-display {
@@ -161,16 +153,16 @@
         }
 
         .date-info {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             font-weight: 500;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .status-badge {
             display: inline-block;
             padding: 3px 8px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 0.2px;
@@ -194,10 +186,10 @@
 
         .footer {
             text-align: center;
-            margin-top: 24px;
-            padding: 16px;
+            margin-top: 20px;
+            padding: 12px;
             color: var(--text-secondary);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         @media (max-width: 600px) {
@@ -239,16 +231,16 @@
 
     <script>
         const offices = [
-            { name: "India", city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: "⛅" },
-            { name: "Vietnam", city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: "☀️" },
-            { name: "Philippines", city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: "☁️" },
-            { name: "Singapore", city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: "🌧️" },
-            { name: "Indonesia", city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: "⛅" },
-            { name: "Kenya", city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: "☀️" },
-            { name: "South Africa", city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: "🌤️" },
-            { name: "USA", city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: "☁️" },
-            { name: "USA", city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: "☀️" },
-            { name: "USA", city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: "🌫️" }
+            { city: "Bangalore", timezone: "Asia/Kolkata", flag: "🇮🇳", weather: "⛅" },
+            { city: "Ho Chi Minh", timezone: "Asia/Ho_Chi_Minh", flag: "🇻🇳", weather: "☀️" },
+            { city: "Manila", timezone: "Asia/Manila", flag: "🇵🇭", weather: "☁️" },
+            { city: "Singapore", timezone: "Asia/Singapore", flag: "🇸🇬", weather: "🌧️" },
+            { city: "Jakarta", timezone: "Asia/Jakarta", flag: "🇮🇩", weather: "⛅" },
+            { city: "Nairobi", timezone: "Africa/Nairobi", flag: "🇰🇪", weather: "☀️" },
+            { city: "Johannesburg", timezone: "Africa/Johannesburg", flag: "🇿🇦", weather: "🌤️" },
+            { city: "New York", timezone: "America/New_York", flag: "🇺🇸", weather: "☁️" },
+            { city: "South Dakota", timezone: "America/Denver", flag: "🇺🇸", weather: "☀️" },
+            { city: "San Francisco", timezone: "America/Los_Angeles", flag: "🇺🇸", weather: "🌫️" }
         ];
 
         function getWorkStatus(hour) {
@@ -265,9 +257,10 @@
             return `
                 <div class="office-card">
                     <span class="weather-icon">${office.weather}</span>
-                    <div class="flag">${office.flag}</div>
-                    <div class="city-name">${office.city}</div>
-                    <div class="country-name">${office.name}</div>
+                    <div class="location-header">
+                        <span class="flag">${office.flag}</span>
+                        <span class="city-name">${office.city}</span>
+                    </div>
                     <div class="time-display" data-timezone="${office.timezone}">--:--</div>
                     <div class="date-info" data-timezone="${office.timezone}">Loading...</div>
                     <span class="status-badge" data-timezone="${office.timezone}">...</span>
@@ -279,7 +272,6 @@
             const now = new Date();
 
             offices.forEach(office => {
-                // Time without seconds
                 const timeStr = now.toLocaleTimeString('en-US', {
                     timeZone: office.timezone,
                     hour12: true,
@@ -320,7 +312,7 @@
             const container = document.getElementById('widgetContainer');
             container.innerHTML = offices.map(office => createOfficeCard(office)).join('');
             updateClocks();
-            setInterval(updateClocks, 60000); // Update every minute
+            setInterval(updateClocks, 60000);
         }
 
         // Theme toggle
