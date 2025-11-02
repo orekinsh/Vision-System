@@ -245,6 +245,196 @@
 
     <div class="widget-container" id="widgetContainer"></div>
 
+    <!-- Gradient Options Preview -->
+    <div class="gradient-preview-section">
+        <div class="gradient-title">Continuous Gradient Options</div>
+        <div class="gradient-subtitle">Tap to preview on cards above</div>
+
+        <div class="gradient-options">
+            <div class="gradient-option" data-gradient="sky">
+                <div class="gradient-swatch gradient-sky"></div>
+                <div class="gradient-label">Sky Cycle</div>
+                <div class="gradient-desc">Night → Dawn → Day → Sunset</div>
+            </div>
+
+            <div class="gradient-option" data-gradient="monochrome">
+                <div class="gradient-swatch gradient-monochrome"></div>
+                <div class="gradient-label">Monochrome</div>
+                <div class="gradient-desc">Smooth grayscale flow</div>
+            </div>
+
+            <div class="gradient-option" data-gradient="warm-cool">
+                <div class="gradient-swatch gradient-warm-cool"></div>
+                <div class="gradient-label">Warm/Cool</div>
+                <div class="gradient-desc">Warm day → Cool night</div>
+            </div>
+
+            <div class="gradient-option" data-gradient="subtle">
+                <div class="gradient-swatch gradient-subtle"></div>
+                <div class="gradient-label">Subtle Pro</div>
+                <div class="gradient-desc">Minimal elegant tones</div>
+            </div>
+
+            <div class="gradient-option" data-gradient="ocean">
+                <div class="gradient-swatch gradient-ocean"></div>
+                <div class="gradient-label">Ocean Sunset</div>
+                <div class="gradient-desc">Cool blue → Warm orange</div>
+            </div>
+
+            <div class="gradient-option" data-gradient="nordic">
+                <div class="gradient-swatch gradient-nordic"></div>
+                <div class="gradient-label">Nordic Minimal</div>
+                <div class="gradient-desc">Pale muted gradient</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .gradient-preview-section {
+            max-width: 500px;
+            margin: 24px auto 0;
+            padding: 16px;
+            background: var(--bg-widget);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .gradient-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .gradient-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .gradient-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .gradient-option {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .gradient-option:active {
+            transform: scale(0.97);
+        }
+
+        .gradient-swatch {
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .gradient-desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Gradient Definitions */
+        .gradient-sky {
+            background: linear-gradient(90deg,
+                #1a1a2e 0%,      /* Night */
+                #ff6b9d 15%,     /* Dawn pink */
+                #ffa07a 25%,     /* Dawn orange */
+                #87ceeb 40%,     /* Day sky blue */
+                #87ceeb 60%,     /* Day continues */
+                #ff8c42 75%,     /* Sunset orange */
+                #c06c84 85%,     /* Sunset pink */
+                #1a1a2e 100%     /* Night */
+            );
+        }
+
+        .gradient-monochrome {
+            background: linear-gradient(90deg,
+                #2c2c2c 0%,      /* Near black */
+                #505050 15%,     /* Dark gray */
+                #808080 30%,     /* Medium gray */
+                #c0c0c0 45%,     /* Light gray */
+                #ffffff 50%,     /* White peak */
+                #c0c0c0 55%,     /* Light gray */
+                #808080 70%,     /* Medium gray */
+                #505050 85%,     /* Dark gray */
+                #2c2c2c 100%     /* Near black */
+            );
+        }
+
+        .gradient-warm-cool {
+            background: linear-gradient(90deg,
+                #2c3e50 0%,      /* Cool dark */
+                #3498db 20%,     /* Cool blue */
+                #ffd93d 40%,     /* Warm yellow */
+                #ff6b6b 50%,     /* Warm red */
+                #ffd93d 60%,     /* Warm yellow */
+                #3498db 80%,     /* Cool blue */
+                #2c3e50 100%     /* Cool dark */
+            );
+        }
+
+        .gradient-subtle {
+            background: linear-gradient(90deg,
+                #f5f5f0 0%,      /* Soft white */
+                #e8e8e3 25%,     /* Pale beige */
+                #d0d0cb 50%,     /* Subtle gray */
+                #e8e8e3 75%,     /* Pale beige */
+                #f5f5f0 100%     /* Soft white */
+            );
+        }
+
+        .gradient-ocean {
+            background: linear-gradient(90deg,
+                #0a2463 0%,      /* Deep ocean */
+                #3e92cc 25%,     /* Ocean blue */
+                #7dd3c0 40%,     /* Turquoise */
+                #f8aa4b 55%,     /* Sunset orange */
+                #ff6542 70%,     /* Warm coral */
+                #3e92cc 85%,     /* Ocean blue */
+                #0a2463 100%     /* Deep ocean */
+            );
+        }
+
+        .gradient-nordic {
+            background: linear-gradient(90deg,
+                #e8ebe9 0%,      /* Pale gray */
+                #d4d9d6 20%,     /* Muted gray-green */
+                #c9cfc9 40%,     /* Soft gray */
+                #f5f5f5 50%,     /* Almost white */
+                #c9cfc9 60%,     /* Soft gray */
+                #d4d9d6 80%,     /* Muted gray-green */
+                #e8ebe9 100%     /* Pale gray */
+            );
+        }
+
+        @media (min-width: 600px) {
+            .gradient-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .gradient-swatch {
+                height: 80px;
+            }
+        }
+    </style>
+
     <script>
         // Ordered east from India (following the sun)
         const offices = [
