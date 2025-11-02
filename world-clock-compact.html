@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>HyperVerge World Clock - Compact</title>
+    <title>HyperVerge World Clock</title>
     <style>
         :root {
             --primary-blue: #3B82F6;
-            --primary-blue-dark: #2563EB;
-            --primary-blue-light: #60A5FA;
 
             /* Light mode */
             --bg-primary: #F5F5F7;
@@ -18,7 +16,7 @@
             --text-primary: #1D1D1F;
             --text-secondary: #86868B;
             --border-color: rgba(0, 0, 0, 0.08);
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
             /* Status colors */
             --work-hours: #34C759;
@@ -32,7 +30,7 @@
             --text-primary: #FFFFFF;
             --text-secondary: #98989D;
             --border-color: rgba(255, 255, 255, 0.12);
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -46,31 +44,32 @@
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
             background: var(--bg-primary);
             min-height: 100vh;
-            padding: 16px;
+            padding: 12px;
             transition: background 0.3s ease;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 0 4px;
+            margin-bottom: 12px;
+            padding: 0 2px;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: var(--text-primary);
         }
 
         .theme-toggle {
-            width: 44px;
-            height: 44px;
-            border-radius: 22px;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
             background: var(--bg-widget);
             border: 1px solid var(--border-color);
             display: flex;
@@ -86,16 +85,16 @@
         }
 
         .theme-toggle svg {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             color: var(--text-primary);
         }
 
         .widget-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            max-width: 800px;
+            gap: 8px;
+            max-width: 500px;
             margin: 0 auto;
         }
 
@@ -103,69 +102,70 @@
             background: var(--bg-widget);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 18px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 10px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            min-height: 0;
         }
 
         .office-card:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
         .weather-icon {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 18px;
-            opacity: 0.6;
+            top: 8px;
+            right: 8px;
+            font-size: 16px;
+            opacity: 0.5;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
 
         .flag {
-            font-size: 24px;
+            font-size: 20px;
             line-height: 1;
         }
 
         .city-name {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
-            letter-spacing: -0.3px;
+            letter-spacing: -0.2px;
         }
 
         .time-display {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: 300;
             color: var(--text-primary);
-            letter-spacing: -1px;
+            letter-spacing: -0.8px;
             font-variant-numeric: tabular-nums;
-            margin-bottom: 6px;
-            line-height: 1.1;
+            margin-bottom: 4px;
+            line-height: 1;
         }
 
         .date-info {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             font-weight: 500;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 9px;
             font-weight: 600;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.1px;
             text-transform: uppercase;
         }
 
@@ -184,27 +184,55 @@
             color: white;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        @media (max-width: 600px) {
-            .widget-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (min-width: 768px) {
+        @media (min-width: 600px) {
             body {
-                padding: 24px;
+                padding: 16px;
+            }
+
+            .header {
+                margin-bottom: 16px;
             }
 
             .header h1 {
+                font-size: 28px;
+            }
+
+            .theme-toggle {
+                width: 44px;
+                height: 44px;
+            }
+
+            .theme-toggle svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .widget-container {
+                gap: 12px;
+            }
+
+            .office-card {
+                padding: 14px;
+            }
+
+            .time-display {
                 font-size: 32px;
+            }
+
+            .city-name {
+                font-size: 16px;
+            }
+
+            .date-info {
+                font-size: 12px;
+            }
+
+            .flag {
+                font-size: 24px;
+            }
+
+            .weather-icon {
+                font-size: 18px;
             }
         }
     </style>
@@ -224,10 +252,6 @@
     </div>
 
     <div class="widget-container" id="widgetContainer"></div>
-
-    <div class="footer">
-        Auto-updates every minute
-    </div>
 
     <script>
         const offices = [
