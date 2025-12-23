@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <title>IG Feed Filter</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #000;
+      --surface: #121212;
+      --surface-elevated: #1c1c1c;
+      --text: #fff;
+      --text-secondary: #a8a8a8;
+      --accent: #0095f6;
+      --accent-hover: #1aa1f7;
+      --danger: #ed4956;
+      --gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .app {
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: var(--gradient);
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    /* Main content */
+    .content {
+      flex: 1;
+      padding: 16px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* Toggle */
+    .toggle {
+      position: relative;
+      width: 51px;
+      height: 31px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #39393d;
+      transition: 0.3s;
+      border-radius: 31px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 27px;
+      width: 27px;
+      left: 2px;
+      bottom: 2px;
+      background: #fff;
+      transition: 0.3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    input:checked + .toggle-slider {
+      background: #34c759;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Browse button */
+    .browse-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--gradient);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .browse-btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    /* Input group */
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 16px;
+      background: var(--surface-elevated);
+      border: 1px solid #333;
+      border-radius: 10px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .input-group button {
+      padding: 14px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .input-group button:active {
+      background: var(--accent-hover);
+    }
+
+    /* Username list */
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 8px;
+    }
+
+    .list-header h3 {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .count-badge {
+      background: var(--surface-elevated);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .username-list {
+      list-style: none;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .username-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .username-item:last-child {
+      border-bottom: none;
+    }
+
+    .username-item span {
+      font-size: 15px;
+    }
+
+    .at-symbol {
+      color: var(--text-secondary);
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 24px;
+      padding: 4px 8px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state small {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    /* Footer actions */
+    .footer-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .footer-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--surface-elevated);
+      border: 1px solid #333;
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .footer-btn:active {
+      background: #252525;
+    }
+
+    .footer-btn.danger {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* Status message */
+    .status {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface-elevated);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .status.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .status.success {
+      background: #1b4332;
+      color: #95d5b2;
+    }
+
+    .status.error {
+      background: #4a1c1c;
+      color: #f8b4b4;
+    }
+
+    /* Info section */
+    .info {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .info h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .info ol {
+      padding-left: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .info li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Instagram Feed Filter</h1>
+      <p>See only who you want to see</p>
+    </header>
+
+    <main class="content">
+      <!-- Browse Instagram -->
+      <a href="/browse/" class="browse-btn" id="browse-btn">
+        Open Filtered Instagram
+      </a>
+
+      <!-- Toggle -->
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-header">
+          <span class="card-title">Filter Enabled</span>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-enabled" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Add username -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Add Account</span>
+        </div>
+        <div class="input-group">
+          <input type="text" id="username-input" placeholder="@username" autocomplete="off" autocapitalize="none">
+          <button id="add-btn">Add</button>
+        </div>
+      </div>
+
+      <!-- Allowlist -->
+      <div class="card">
+        <div class="list-header">
+          <h3>Allowed Accounts</h3>
+          <span class="count-badge" id="count">0</span>
+        </div>
+        <ul class="username-list" id="username-list"></ul>
+        <div class="empty-state" id="empty-state">
+          <p>No accounts added</p>
+          <small>Add usernames to filter your feed</small>
+        </div>
+        <div class="footer-actions">
+          <button class="footer-btn" id="import-btn">Import</button>
+          <button class="footer-btn" id="export-btn">Export</button>
+          <button class="footer-btn danger" id="clear-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="info">
+        <h3>How to use</h3>
+        <ol>
+          <li>Add accounts you want to see</li>
+          <li>Tap "Open Filtered Instagram"</li>
+          <li>Log in to Instagram if needed</li>
+          <li>Enjoy your filtered feed!</li>
+        </ol>
+      </div>
+
+      <!-- Add to home screen instructions -->
+      <div class="info">
+        <h3>Add to Home Screen</h3>
+        <ol>
+          <li>Tap the Share button</li>
+          <li>Scroll down, tap "Add to Home Screen"</li>
+          <li>Tap "Add" to confirm</li>
+        </ol>
+      </div>
+    </main>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    // DOM elements
+    const toggleEnabled = document.getElementById('toggle-enabled');
+    const usernameInput = document.getElementById('username-input');
+    const addBtn = document.getElementById('add-btn');
+    const usernameList = document.getElementById('username-list');
+    const emptyState = document.getElementById('empty-state');
+    const countEl = document.getElementById('count');
+    const statusEl = document.getElementById('status');
+    const importBtn = document.getElementById('import-btn');
+    const exportBtn = document.getElementById('export-btn');
+    const clearBtn = document.getElementById('clear-btn');
+
+    let state = { enabled: true, allowlist: [] };
+
+    // API helpers
+    async function api(endpoint, options = {}) {
+      const res = await fetch(endpoint, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      return res.json();
+    }
+
+    function showStatus(msg, isError = false) {
+      statusEl.textContent = msg;
+      statusEl.className = `status visible ${isError ? 'error' : 'success'}`;
+      setTimeout(() => statusEl.classList.remove('visible'), 2500);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderList() {
+      countEl.textContent = state.allowlist.length;
+      emptyState.style.display = state.allowlist.length ? 'none' : 'block';
+      usernameList.style.display = state.allowlist.length ? 'block' : 'none';
+
+      usernameList.innerHTML = state.allowlist.sort().map(u => `
+        <li class="username-item">
+          <span><span class="at-symbol">@</span>${escapeHtml(u)}</span>
+          <button class="remove-btn" data-username="${escapeHtml(u)}">&times;</button>
+        </li>
+      `).join('');
+    }
+
+    async function loadState() {
+      try {
+        state = await api('/api/state');
+        toggleEnabled.checked = state.enabled;
+        renderList();
+      } catch (e) {
+        showStatus('Failed to load state', true);
+      }
+    }
+
+    // Event handlers
+    toggleEnabled.addEventListener('change', async () => {
+      try {
+        const res = await api('/api/enabled', {
+          method: 'POST',
+          body: { enabled: toggleEnabled.checked }
+        });
+        state.enabled = res.enabled;
+        showStatus(state.enabled ? 'Filter enabled' : 'Filter disabled');
+      } catch (e) {
+        toggleEnabled.checked = state.enabled;
+        showStatus('Failed to update', true);
+      }
+    });
+
+    async function addUsername() {
+      const username = usernameInput.value.trim().replace(/^@/, '');
+      if (!username) return;
+
+      if (!/^[a-zA-Z0-9._]+$/.test(username)) {
+        showStatus('Invalid username', true);
+        return;
+      }
+
+      try {
+        const res = await api('/api/allowlist/add', {
+          method: 'POST',
+          body: { username }
+        });
+        state.allowlist = res.allowlist;
+        usernameInput.value = '';
+        renderList();
+        showStatus(`Added @${username}`);
+      } catch (e) {
+        showStatus('Failed to add', true);
+      }
+    }
+
+    addBtn.addEventListener('click', addUsername);
+    usernameInput.addEventListener('keypress', e => e.key === 'Enter' && addUsername());
+
+    usernameList.addEventListener('click', async e => {
+      if (!e.target.classList.contains('remove-btn')) return;
+      const username = e.target.dataset.username;
+
+      try {
+        const res = await api('/api/allowlist/remove', {
+          method: 'POST',
+          body: { username }
+        });
+        state.allowlist = res.allowlist;
+        renderList();
+        showStatus(`Removed @${username}`);
+      } catch (e) {
+        showStatus('Failed to remove', true);
+      }
+    });
+
+    importBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.txt,.json';
+
+      input.onchange = async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          let usernames;
+
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(text);
+            usernames = Array.isArray(data) ? data : data.allowlist || data.usernames || [];
+          } else {
+            usernames = text.split(/[\n,]/).map(u => u.trim().replace(/^@/, '')).filter(Boolean);
+          }
+
+          const res = await api('/api/allowlist/import', {
+            method: 'POST',
+            body: { usernames }
+          });
+          state.allowlist = res.allowlist;
+          renderList();
+          showStatus(`Imported ${res.added} accounts`);
+        } catch (e) {
+          showStatus('Import failed', true);
+        }
+      };
+
+      input.click();
+    });
+
+    exportBtn.addEventListener('click', () => {
+      if (!state.allowlist.length) {
+        showStatus('Nothing to export', true);
+        return;
+      }
+
+      const data = JSON.stringify({ allowlist: state.allowlist }, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ig-filter-allowlist.json';
+      a.click();
+
+      URL.revokeObjectURL(url);
+      showStatus('Exported!');
+    });
+
+    clearBtn.addEventListener('click', async () => {
+      if (!state.allowlist.length) return;
+      if (!confirm('Clear all accounts?')) return;
+
+      try {
+        await api('/api/allowlist/clear', { method: 'POST' });
+        state.allowlist = [];
+        renderList();
+        showStatus('Cleared all');
+      } catch (e) {
+        showStatus('Failed to clear', true);
+      }
+    });
+
+    // Initialize
+    loadState();
+  </script>
+</body>
+</html>
