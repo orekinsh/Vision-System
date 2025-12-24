@@ -41,6 +41,18 @@ const IG_DOMAINS = {
   '/ig-api/': 'https://i.instagram.com/api',
 };
 
+// Health check / debug endpoint
+app.get('/debug', (req, res) => {
+  res.json({
+    status: 'ok',
+    session: {
+      hasCookies: !!req.session.igCookies,
+      cookieLength: (req.session.igCookies || '').length
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Proxy all Instagram requests
 app.use('/ig', async (req, res) => {
   const igPath = req.url || '/';
