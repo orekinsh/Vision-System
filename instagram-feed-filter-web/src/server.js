@@ -136,7 +136,13 @@ function handleProxy(baseUrl, prefix) {
       const targetUrl = baseUrl + targetPath;
       const targetHost = new URL(baseUrl).host;
 
-      console.log(`[Proxy] ${req.method} ${targetUrl}`);
+      // Check if this is a static bundle request - these need special handling
+      const isStaticBundle = targetPath.includes('/static/bundles/') ||
+                             targetPath.includes('/rsrc.php/') ||
+                             targetPath.endsWith('.js') ||
+                             targetPath.endsWith('.css');
+
+      console.log(`[Proxy] ${req.method} ${targetUrl} ${isStaticBundle ? '(static)' : ''}`);
 
       const headers = getIGHeaders(req, targetHost);
 
@@ -176,6 +182,22 @@ function handleProxy(baseUrl, prefix) {
       }
 
       const contentType = response.headers.get('content-type') || '';
+
+      // For static bundle requests that return HTML, Instagram is blocking us
+      // Return empty JS to prevent breaking the page
+      if (isStaticBundle && contentType.includes('text/html')) {
+        console.log(`[Proxy] Static file returned HTML (blocked): ${targetUrl}`);
+        if (targetPath.endsWith('.js')) {
+          res.set('Content-Type', 'application/javascript');
+          res.send('// Resource blocked by Instagram');
+          return;
+        }
+        if (targetPath.endsWith('.css')) {
+          res.set('Content-Type', 'text/css');
+          res.send('/* Resource blocked */');
+          return;
+        }
+      }
 
       // Handle HTML responses
       if (contentType.includes('text/html')) {
