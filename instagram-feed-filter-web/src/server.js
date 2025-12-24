@@ -125,6 +125,63 @@ function storeCookies(req, response) {
 // Main Instagram Proxy
 // =============================================================================
 
+// Static bundles route MUST come before general /ig/* route
+app.all('/ig/static/*', async (req, res) => {
+  try {
+    const staticPath = req.url.replace('/ig/static', '/static');
+    // Try static CDN first, fall back to www
+    const cdnUrl = `https://static.cdninstagram.com${staticPath}`;
+    const wwwUrl = `https://www.instagram.com${staticPath}`;
+
+    console.log(`[Static] Trying CDN: ${cdnUrl}`);
+
+    let response = await fetch(cdnUrl, {
+      headers: {
+        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
+        'Referer': 'https://www.instagram.com/',
+        'Accept': '*/*',
+      }
+    });
+
+    // If CDN fails, try www
+    if (!response.ok) {
+      console.log(`[Static] CDN failed (${response.status}), trying www`);
+      response = await fetch(wwwUrl, {
+        headers: {
+          'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
+          'Referer': 'https://www.instagram.com/',
+          'Accept': '*/*',
+        }
+      });
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+
+    // If we got HTML back for a JS/CSS file, Instagram is blocking
+    if (contentType.includes('text/html')) {
+      if (staticPath.endsWith('.js')) {
+        console.log(`[Static] Blocked: ${staticPath}`);
+        res.set('Content-Type', 'application/javascript');
+        res.send('console.log("Resource unavailable");');
+        return;
+      }
+      if (staticPath.endsWith('.css')) {
+        res.set('Content-Type', 'text/css');
+        res.send('/* unavailable */');
+        return;
+      }
+    }
+
+    const buffer = await response.buffer();
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'public, max-age=31536000');
+    res.send(buffer);
+  } catch (error) {
+    console.error('[Static Error]', error.message);
+    res.status(502).send('// Error loading resource');
+  }
+});
+
 app.all('/ig/*', handleProxy('https://www.instagram.com', '/ig'));
 app.all('/ig-i/*', handleProxy('https://i.instagram.com', '/ig-i'));
 app.all('/ig-graph/*', handleProxy('https://graph.instagram.com', '/ig-graph'));
