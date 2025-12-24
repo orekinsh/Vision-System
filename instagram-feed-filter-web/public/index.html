@@ -437,7 +437,15 @@
         } else if (result.challengeRequired) {
           loginError.textContent = result.message || 'Please verify your account in the Instagram app first';
         } else {
-          loginError.textContent = result.error || 'Login failed';
+          // Show detailed error
+          let errorMsg = result.error || 'Login failed';
+          if (result.details) {
+            console.log('Login error details:', result.details);
+          }
+          if (result.errorType) {
+            errorMsg += ` (${result.errorType})`;
+          }
+          loginError.textContent = errorMsg;
         }
       } catch (e) {
         loginError.textContent = 'Login failed. Please try again.';

@@ -160,8 +160,23 @@ app.post('/api/auth/login', async (req, res) => {
     cookies = cookies + '; ' + parseCookies(loginRes);
     csrfToken = extractCSRF(cookies) || csrfToken;
 
-    const loginJson = await loginRes.json();
-    console.log('[Login] Response:', JSON.stringify(loginJson, null, 2));
+    const loginText = await loginRes.text();
+    console.log('[Login] Raw response:', loginText);
+    console.log('[Login] Status:', loginRes.status);
+    console.log('[Login] Headers:', JSON.stringify([...loginRes.headers.entries()]));
+
+    let loginJson;
+    try {
+      loginJson = JSON.parse(loginText);
+    } catch (e) {
+      console.error('[Login] Failed to parse JSON:', e);
+      return res.status(500).json({
+        error: 'Instagram returned invalid response',
+        details: loginText.substring(0, 200)
+      });
+    }
+
+    console.log('[Login] Parsed:', JSON.stringify(loginJson, null, 2));
 
     if (loginJson.logged_in_user || loginJson.status === 'ok') {
       // Success!
@@ -214,8 +229,9 @@ app.post('/api/auth/login', async (req, res) => {
     // Login failed
     return res.status(401).json({
       success: false,
-      error: loginJson.message || 'Login failed',
-      errorType: loginJson.error_type
+      error: loginJson.message || loginJson.error_message || 'Login failed',
+      errorType: loginJson.error_type,
+      details: loginJson
     });
 
   } catch (error) {
