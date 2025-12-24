@@ -46,17 +46,34 @@ app.use('/ig', async (req, res) => {
   const igPath = req.url || '/';
   const igUrl = `https://www.instagram.com${igPath}`;
 
-  console.log(`[Proxy] ${req.method} ${igUrl}`);
+  const isApiRequest = igPath.includes('/api/') || igPath.includes('/graphql');
+  console.log(`[Proxy] ${req.method} ${igUrl} ${isApiRequest ? '(API)' : ''}`);
 
   try {
+    // Build headers - different for API vs page requests
     const headers = {
       'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-      'Accept': req.headers['accept'] || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.9',
-      'Accept-Encoding': 'identity', // Don't request compression
+      'Accept-Encoding': 'identity',
       'Cookie': req.session.igCookies || '',
       'Referer': 'https://www.instagram.com/',
+      'Origin': 'https://www.instagram.com',
+      'X-IG-App-ID': '936619743392459',
+      'X-IG-WWW-Claim': '0',
+      'X-Requested-With': 'XMLHttpRequest',
     };
+
+    // Set Accept header based on request type
+    if (isApiRequest) {
+      headers['Accept'] = 'application/json';
+    } else {
+      headers['Accept'] = req.headers['accept'] || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+    }
+
+    // Forward CSRF token if present
+    if (req.headers['x-csrftoken']) {
+      headers['X-CSRFToken'] = req.headers['x-csrftoken'];
+    }
 
     // Forward POST body
     let body;
@@ -102,6 +119,19 @@ app.use('/ig', async (req, res) => {
 
     const contentType = response.headers.get('content-type') || '';
     console.log(`[Proxy] Response: ${response.status} ${contentType}`);
+
+    // API request got HTML back - Instagram is blocking or needs login
+    if (isApiRequest && contentType.includes('text/html')) {
+      console.log(`[Proxy] API returned HTML - needs auth or blocked`);
+      // Return error JSON that React app can handle
+      res.set('Content-Type', 'application/json');
+      res.status(401).json({
+        status: 'fail',
+        message: 'Login required',
+        requires_login: true
+      });
+      return;
+    }
 
     // For HTML, rewrite URLs
     if (contentType.includes('text/html')) {
