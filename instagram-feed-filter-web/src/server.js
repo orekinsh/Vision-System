@@ -1,11 +1,12 @@
 /**
- * Instagram Feed Filter - Simplified Proxy
- * Goal: Get basic Instagram loading first, then add filtering
+ * Instapump - Custom Instagram Reels Viewer
+ * Login with credentials, view reels, filter content
  */
 
 const express = require('express');
 const session = require('express-session');
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 const path = require('path');
 
 const app = express();
@@ -13,180 +14,423 @@ const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
 
-// Session for storing cookies
+// Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'ig-filter-secret',
+  secret: process.env.SESSION_SECRET || 'instapump-secret-change-in-prod',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false, sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 }
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  }
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Initialize session
-app.use((req, res, next) => {
-  if (!req.session.igCookies) req.session.igCookies = '';
+// =============================================================================
+// Instagram API Configuration
+// =============================================================================
+
+const IG_API = 'https://i.instagram.com/api/v1';
+const IG_WEB = 'https://www.instagram.com';
+
+// Generate device ID (consistent per user)
+function generateDeviceId(seed) {
+  return 'android-' + crypto.createHash('md5').update(seed).digest('hex').substring(0, 16);
+}
+
+// Generate UUID
+function generateUUID() {
+  return crypto.randomUUID();
+}
+
+// Instagram API headers
+function getHeaders(session = {}) {
+  const headers = {
+    'User-Agent': 'Instagram 275.0.0.27.98 Android (33/13; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 458229237)',
+    'Accept': '*/*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate',
+    'X-IG-App-ID': '567067343352427',
+    'X-IG-Device-ID': session.deviceId || generateUUID(),
+    'X-IG-Android-ID': session.androidId || generateDeviceId('default'),
+    'X-IG-Connection-Type': 'WIFI',
+    'X-IG-Capabilities': '3brTvx0=',
+    'X-IG-App-Locale': 'en_US',
+    'X-IG-Device-Locale': 'en_US',
+    'X-IG-Mapped-Locale': 'en_US',
+    'X-Pigeon-Session-Id': generateUUID(),
+    'X-Pigeon-Rawclienttime': (Date.now() / 1000).toFixed(3),
+    'X-IG-Bandwidth-Speed-KBPS': '-1.000',
+    'X-IG-Bandwidth-TotalBytes-B': '0',
+    'X-IG-Bandwidth-TotalTime-MS': '0',
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+  };
+
+  if (session.csrfToken) {
+    headers['X-CSRFToken'] = session.csrfToken;
+  }
+
+  if (session.cookies) {
+    headers['Cookie'] = session.cookies;
+  }
+
+  if (session.authorization) {
+    headers['Authorization'] = session.authorization;
+  }
+
+  return headers;
+}
+
+// Parse cookies from response
+function parseCookies(response) {
+  const setCookies = response.headers.raw()['set-cookie'] || [];
+  return setCookies.map(c => c.split(';')[0]).join('; ');
+}
+
+// Extract CSRF token from cookies
+function extractCSRF(cookies) {
+  const match = cookies.match(/csrftoken=([^;]+)/);
+  return match ? match[1] : null;
+}
+
+// =============================================================================
+// Auth Check Middleware
+// =============================================================================
+
+function requireAuth(req, res, next) {
+  if (!req.session.ig || !req.session.ig.loggedIn) {
+    return res.status(401).json({ error: 'Not logged in', requiresLogin: true });
+  }
   next();
-});
+}
 
 // =============================================================================
-// Simple Proxy - Just forward everything to Instagram
+// API Routes
 // =============================================================================
 
-const IG_DOMAINS = {
-  '/ig/': 'https://www.instagram.com',
-  '/ig-i/': 'https://i.instagram.com',
-  '/ig-api/': 'https://i.instagram.com/api',
-};
-
-// Health check / debug endpoint
-app.get('/debug', (req, res) => {
+// Check login status
+app.get('/api/auth/status', (req, res) => {
   res.json({
-    status: 'ok',
-    session: {
-      hasCookies: !!req.session.igCookies,
-      cookieLength: (req.session.igCookies || '').length
-    },
-    timestamp: new Date().toISOString()
+    loggedIn: !!(req.session.ig && req.session.ig.loggedIn),
+    username: req.session.ig?.username || null
   });
 });
 
-// Proxy all Instagram requests
-app.use('/ig', async (req, res) => {
-  const igPath = req.url || '/';
-  const igUrl = `https://www.instagram.com${igPath}`;
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
 
-  const isApiRequest = igPath.includes('/api/') || igPath.includes('/graphql');
-  console.log(`[Proxy] ${req.method} ${igUrl} ${isApiRequest ? '(API)' : ''}`);
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
+  }
 
   try {
-    // Build headers - different for API vs page requests
-    const headers = {
-      'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept-Encoding': 'identity',
-      'Cookie': req.session.igCookies || '',
-      'Referer': 'https://www.instagram.com/',
-      'Origin': 'https://www.instagram.com',
-      'X-IG-App-ID': '936619743392459',
-      'X-IG-WWW-Claim': '0',
-      'X-Requested-With': 'XMLHttpRequest',
-    };
+    // Initialize session data
+    const deviceId = generateUUID();
+    const androidId = generateDeviceId(username);
 
-    // Set Accept header based on request type
-    if (isApiRequest) {
-      headers['Accept'] = 'application/json';
-    } else {
-      headers['Accept'] = req.headers['accept'] || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
-    }
-
-    // Forward CSRF token if present
-    if (req.headers['x-csrftoken']) {
-      headers['X-CSRFToken'] = req.headers['x-csrftoken'];
-    }
-
-    // Forward POST body
-    let body;
-    if (req.method === 'POST') {
-      headers['Content-Type'] = req.headers['content-type'] || 'application/x-www-form-urlencoded';
-      if (req.headers['content-type']?.includes('json')) {
-        body = JSON.stringify(req.body);
-      } else {
-        body = new URLSearchParams(req.body).toString();
-      }
-    }
-
-    const response = await fetch(igUrl, {
-      method: req.method,
-      headers,
-      body,
-      redirect: 'manual',
+    // First, get CSRF token
+    const preLoginRes = await fetch(`${IG_WEB}/api/v1/public/landing_info/`, {
+      headers: getHeaders({ deviceId, androidId })
     });
 
-    // Store cookies from response
-    const setCookies = response.headers.raw()['set-cookie'];
-    if (setCookies) {
-      const newCookies = setCookies.map(c => c.split(';')[0]).join('; ');
-      req.session.igCookies = req.session.igCookies
-        ? req.session.igCookies + '; ' + newCookies
-        : newCookies;
-      console.log('[Proxy] Stored cookies');
-    }
+    let cookies = parseCookies(preLoginRes);
+    let csrfToken = extractCSRF(cookies);
 
-    // Handle redirects - rewrite Instagram URLs to our proxy
-    if ([301, 302, 303, 307, 308].includes(response.status)) {
-      let location = response.headers.get('location') || '';
-      console.log(`[Proxy] Redirect to: ${location}`);
+    // Prepare login data
+    const loginData = new URLSearchParams({
+      username: username,
+      enc_password: `#PWD_INSTAGRAM:0:${Math.floor(Date.now() / 1000)}:${password}`,
+      device_id: androidId,
+      login_attempt_count: '0',
+    });
 
-      // Rewrite absolute Instagram URLs to our proxy
-      location = location
-        .replace('https://www.instagram.com', '/ig')
-        .replace('https://instagram.com', '/ig');
+    // Attempt login
+    const loginRes = await fetch(`${IG_API}/accounts/login/`, {
+      method: 'POST',
+      headers: getHeaders({ deviceId, androidId, csrfToken, cookies }),
+      body: loginData.toString()
+    });
 
-      res.redirect(response.status, location);
-      return;
-    }
+    // Update cookies
+    cookies = cookies + '; ' + parseCookies(loginRes);
+    csrfToken = extractCSRF(cookies) || csrfToken;
 
-    const contentType = response.headers.get('content-type') || '';
-    console.log(`[Proxy] Response: ${response.status} ${contentType}`);
+    const loginJson = await loginRes.json();
+    console.log('[Login] Response:', JSON.stringify(loginJson, null, 2));
 
-    // API request got HTML back - Instagram is blocking or needs login
-    if (isApiRequest && contentType.includes('text/html')) {
-      console.log(`[Proxy] API returned HTML - needs auth or blocked`);
-      // Return error JSON that React app can handle
-      res.set('Content-Type', 'application/json');
-      res.status(401).json({
-        status: 'fail',
-        message: 'Login required',
-        requires_login: true
+    if (loginJson.logged_in_user || loginJson.status === 'ok') {
+      // Success!
+      req.session.ig = {
+        loggedIn: true,
+        userId: loginJson.logged_in_user?.pk || loginJson.user_id,
+        username: loginJson.logged_in_user?.username || username,
+        deviceId,
+        androidId,
+        csrfToken,
+        cookies,
+        authorization: loginRes.headers.get('ig-set-authorization') || null
+      };
+
+      return res.json({
+        success: true,
+        username: req.session.ig.username
       });
-      return;
     }
 
-    // For HTML, rewrite URLs
-    if (contentType.includes('text/html')) {
-      let html = await response.text();
+    // Handle 2FA
+    if (loginJson.two_factor_required) {
+      req.session.twoFactor = {
+        identifier: loginJson.two_factor_info.two_factor_identifier,
+        deviceId,
+        androidId,
+        csrfToken,
+        cookies,
+        username
+      };
 
-      // Rewrite URLs to go through our proxy
-      html = html
-        .replace(/https:\/\/www\.instagram\.com/g, '/ig')
-        .replace(/https:\/\/instagram\.com/g, '/ig')
-        .replace(/"\/static\//g, '"/ig/static/')
-        .replace(/"\/accounts\//g, '"/ig/accounts/')
-        .replace(/"\/api\//g, '"/ig/api/')
-        .replace(/"\/graphql/g, '"/ig/graphql');
-
-      // Don't rewrite CDN URLs - let them load directly from Instagram
-      // This is key - we let static files load from Instagram's CDN
-
-      res.set('Content-Type', 'text/html; charset=utf-8');
-      res.send(html);
-      return;
+      return res.json({
+        success: false,
+        twoFactorRequired: true,
+        twoFactorInfo: {
+          obfuscatedPhone: loginJson.two_factor_info.obfuscated_phone_number
+        }
+      });
     }
 
-    // For everything else, pass through as-is
-    const buffer = await response.buffer();
+    // Handle challenge
+    if (loginJson.challenge) {
+      return res.json({
+        success: false,
+        challengeRequired: true,
+        message: 'Instagram requires verification. Please login via the Instagram app first.'
+      });
+    }
 
-    // Set content type
-    res.set('Content-Type', contentType);
-
-    // Copy cache headers
-    const cacheControl = response.headers.get('cache-control');
-    if (cacheControl) res.set('Cache-Control', cacheControl);
-
-    res.status(response.status).send(buffer);
+    // Login failed
+    return res.status(401).json({
+      success: false,
+      error: loginJson.message || 'Login failed',
+      errorType: loginJson.error_type
+    });
 
   } catch (error) {
-    console.error('[Proxy Error]', error.message);
-    res.status(502).send(`Proxy error: ${error.message}`);
+    console.error('[Login Error]', error);
+    res.status(500).json({ error: 'Login failed: ' + error.message });
   }
 });
 
-// API state endpoint (for our frontend)
-app.get('/api/state', (req, res) => {
-  res.json({ enabled: true, allowlist: [] });
+// 2FA verification
+app.post('/api/auth/verify-2fa', async (req, res) => {
+  const { code } = req.body;
+  const twoFactor = req.session.twoFactor;
+
+  if (!twoFactor) {
+    return res.status(400).json({ error: 'No 2FA session found' });
+  }
+
+  try {
+    const verifyData = new URLSearchParams({
+      verification_code: code,
+      two_factor_identifier: twoFactor.identifier,
+      username: twoFactor.username,
+      device_id: twoFactor.androidId,
+      trust_this_device: '1'
+    });
+
+    const verifyRes = await fetch(`${IG_API}/accounts/two_factor_login/`, {
+      method: 'POST',
+      headers: getHeaders(twoFactor),
+      body: verifyData.toString()
+    });
+
+    const cookies = twoFactor.cookies + '; ' + parseCookies(verifyRes);
+    const verifyJson = await verifyRes.json();
+
+    if (verifyJson.logged_in_user || verifyJson.status === 'ok') {
+      req.session.ig = {
+        loggedIn: true,
+        userId: verifyJson.logged_in_user?.pk,
+        username: verifyJson.logged_in_user?.username || twoFactor.username,
+        deviceId: twoFactor.deviceId,
+        androidId: twoFactor.androidId,
+        csrfToken: extractCSRF(cookies) || twoFactor.csrfToken,
+        cookies,
+        authorization: verifyRes.headers.get('ig-set-authorization') || null
+      };
+      delete req.session.twoFactor;
+
+      return res.json({ success: true, username: req.session.ig.username });
+    }
+
+    return res.status(401).json({ error: verifyJson.message || '2FA verification failed' });
+  } catch (error) {
+    console.error('[2FA Error]', error);
+    res.status(500).json({ error: '2FA verification failed' });
+  }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ success: true });
+});
+
+// =============================================================================
+// Reels Feed
+// =============================================================================
+
+app.get('/api/reels', requireAuth, async (req, res) => {
+  try {
+    const ig = req.session.ig;
+    const maxId = req.query.max_id || '';
+
+    // Fetch reels tray (clips)
+    const url = maxId
+      ? `${IG_API}/clips/user/?max_id=${maxId}`
+      : `${IG_API}/feed/reels_tray/`;
+
+    const reelsRes = await fetch(url, {
+      headers: getHeaders(ig)
+    });
+
+    // Update cookies
+    const newCookies = parseCookies(reelsRes);
+    if (newCookies) {
+      req.session.ig.cookies = ig.cookies + '; ' + newCookies;
+    }
+
+    const reelsJson = await reelsRes.json();
+
+    if (reelsJson.status !== 'ok' && !reelsJson.tray) {
+      console.error('[Reels Error]', reelsJson);
+      return res.status(400).json({ error: 'Failed to fetch reels' });
+    }
+
+    res.json(reelsJson);
+  } catch (error) {
+    console.error('[Reels Error]', error);
+    res.status(500).json({ error: 'Failed to fetch reels' });
+  }
+});
+
+// Fetch reels feed (video clips)
+app.get('/api/reels/feed', requireAuth, async (req, res) => {
+  try {
+    const ig = req.session.ig;
+    const maxId = req.query.max_id || '';
+
+    const url = `${IG_API}/clips/reels_tray/`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getHeaders(ig),
+      body: new URLSearchParams({
+        _uuid: ig.deviceId,
+        _uid: ig.userId,
+        device_id: ig.androidId
+      }).toString()
+    });
+
+    const json = await response.json();
+    res.json(json);
+  } catch (error) {
+    console.error('[Reels Feed Error]', error);
+    res.status(500).json({ error: 'Failed to fetch reels feed' });
+  }
+});
+
+// Get timeline feed
+app.get('/api/feed', requireAuth, async (req, res) => {
+  try {
+    const ig = req.session.ig;
+
+    const response = await fetch(`${IG_API}/feed/timeline/`, {
+      method: 'POST',
+      headers: getHeaders(ig),
+      body: new URLSearchParams({
+        _uuid: ig.deviceId,
+        _uid: ig.userId,
+        device_id: ig.androidId,
+        is_async_ads_rti: '0',
+        is_async_ads_double_request: '0',
+        rti_delivery_backend: '0',
+        is_async_ads_in_headload_enabled: '0'
+      }).toString()
+    });
+
+    const json = await response.json();
+    res.json(json);
+  } catch (error) {
+    console.error('[Feed Error]', error);
+    res.status(500).json({ error: 'Failed to fetch feed' });
+  }
+});
+
+// Proxy media (images/videos) to avoid CORS
+app.get('/api/media', requireAuth, async (req, res) => {
+  const url = req.query.url;
+  if (!url) return res.status(400).send('URL required');
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Instagram 275.0.0.27.98 Android',
+        'Referer': 'https://www.instagram.com/'
+      }
+    });
+
+    const contentType = response.headers.get('content-type');
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'public, max-age=86400');
+
+    const buffer = await response.buffer();
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).send('Failed to load media');
+  }
+});
+
+// =============================================================================
+// Filter Settings
+// =============================================================================
+
+app.get('/api/settings', (req, res) => {
+  res.json({
+    approvedAccounts: req.session.approvedAccounts || [],
+    rejectedAccounts: req.session.rejectedAccounts || [],
+    approvedRatio: req.session.approvedRatio || 80
+  });
+});
+
+app.post('/api/settings/approve', (req, res) => {
+  const { username } = req.body;
+  if (!req.session.approvedAccounts) req.session.approvedAccounts = [];
+  if (!req.session.approvedAccounts.includes(username)) {
+    req.session.approvedAccounts.push(username);
+  }
+  // Remove from rejected if present
+  if (req.session.rejectedAccounts) {
+    req.session.rejectedAccounts = req.session.rejectedAccounts.filter(u => u !== username);
+  }
+  res.json({ success: true, approvedAccounts: req.session.approvedAccounts });
+});
+
+app.post('/api/settings/reject', (req, res) => {
+  const { username } = req.body;
+  if (!req.session.rejectedAccounts) req.session.rejectedAccounts = [];
+  if (!req.session.rejectedAccounts.includes(username)) {
+    req.session.rejectedAccounts.push(username);
+  }
+  // Remove from approved if present
+  if (req.session.approvedAccounts) {
+    req.session.approvedAccounts = req.session.approvedAccounts.filter(u => u !== username);
+  }
+  res.json({ success: true, rejectedAccounts: req.session.rejectedAccounts });
 });
 
 // =============================================================================
@@ -194,6 +438,5 @@ app.get('/api/state', (req, res) => {
 // =============================================================================
 
 app.listen(PORT, () => {
-  console.log(`Instagram Proxy running on port ${PORT}`);
-  console.log('Open /ig/ to browse Instagram');
+  console.log(`Instapump running on port ${PORT}`);
 });

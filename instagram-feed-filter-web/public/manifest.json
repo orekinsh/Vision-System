@@ -1,7 +1,7 @@
 {
-  "name": "Instagram Feed Filter",
-  "short_name": "IG Filter",
-  "description": "Filter your Instagram feed to show only accounts you want to see",
+  "name": "Instapump",
+  "short_name": "Instapump",
+  "description": "Custom Instagram Reels viewer with filtering",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

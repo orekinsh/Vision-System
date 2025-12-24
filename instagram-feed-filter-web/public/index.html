@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
-  <title>IG Feed Filter</title>
+  <title>Instapump</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
@@ -20,616 +20,664 @@
     :root {
       --bg: #000;
       --surface: #121212;
-      --surface-elevated: #1c1c1c;
+      --surface-2: #1e1e1e;
       --text: #fff;
-      --text-secondary: #a8a8a8;
+      --text-dim: #888;
       --accent: #0095f6;
-      --accent-hover: #1aa1f7;
       --danger: #ed4956;
+      --success: #2ecc71;
       --gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
     }
 
-    .app {
-      max-width: 500px;
-      margin: 0 auto;
-      min-height: 100vh;
+    /* Login Screen */
+    .login-screen {
+      flex: 1;
       display: flex;
       flex-direction: column;
-    }
-
-    /* Header */
-    .header {
-      background: var(--gradient);
-      padding: 20px;
-      text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .header p {
-      font-size: 13px;
-      opacity: 0.9;
-      margin-top: 4px;
-    }
-
-    /* Main content */
-    .content {
-      flex: 1;
-      padding: 16px;
-    }
-
-    /* Cards */
-    .card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 12px;
+      padding: 20px;
     }
 
-    .card-title {
-      font-size: 15px;
-      font-weight: 600;
+    .login-screen.hidden { display: none; }
+
+    .login-logo {
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 40px;
     }
 
-    /* Toggle */
-    .toggle {
-      position: relative;
-      width: 51px;
-      height: 31px;
+    .login-form {
+      width: 100%;
+      max-width: 350px;
     }
 
-    .toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #39393d;
-      transition: 0.3s;
-      border-radius: 31px;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 27px;
-      width: 27px;
-      left: 2px;
-      bottom: 2px;
-      background: #fff;
-      transition: 0.3s;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    input:checked + .toggle-slider {
-      background: #34c759;
-    }
-
-    input:checked + .toggle-slider:before {
-      transform: translateX(20px);
-    }
-
-    /* Browse button */
-    .browse-btn {
-      display: block;
+    .input-field {
       width: 100%;
       padding: 16px;
-      background: var(--gradient);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      text-align: center;
-      transition: transform 0.2s, opacity 0.2s;
-    }
-
-    .browse-btn:active {
-      transform: scale(0.98);
-      opacity: 0.9;
-    }
-
-    /* Input group */
-    .input-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .input-group input {
-      flex: 1;
-      padding: 14px 16px;
-      background: var(--surface-elevated);
+      margin-bottom: 12px;
+      background: var(--surface);
       border: 1px solid #333;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 16px;
       color: var(--text);
       outline: none;
     }
 
-    .input-group input:focus {
+    .input-field:focus {
       border-color: var(--accent);
     }
 
-    .input-group input::placeholder {
-      color: var(--text-secondary);
+    .input-field::placeholder {
+      color: var(--text-dim);
     }
 
-    .input-group button {
-      padding: 14px 20px;
-      background: var(--accent);
-      color: #fff;
+    .btn {
+      width: 100%;
+      padding: 16px;
       border: none;
-      border-radius: 10px;
-      font-size: 15px;
+      border-radius: 8px;
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
+      transition: opacity 0.2s;
     }
 
-    .input-group button:active {
-      background: var(--accent-hover);
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    /* Username list */
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #333;
-      margin-bottom: 8px;
+    .btn-primary {
+      background: var(--accent);
+      color: white;
     }
 
-    .list-header h3 {
+    .btn-primary:active:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    .error-msg {
+      color: var(--danger);
       font-size: 14px;
-      color: var(--text-secondary);
-      font-weight: 500;
+      margin-top: 12px;
+      text-align: center;
     }
 
-    .count-badge {
-      background: var(--surface-elevated);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 13px;
-      color: var(--text-secondary);
+    /* Reels Screen */
+    .reels-screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .username-list {
-      list-style: none;
-      max-height: 300px;
-      overflow-y: auto;
-    }
+    .reels-screen.active { display: flex; }
 
-    .username-item {
+    .reels-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      padding: 12px 16px;
+      background: var(--surface);
       border-bottom: 1px solid #222;
     }
 
-    .username-item:last-child {
-      border-bottom: none;
+    .reels-title {
+      font-size: 18px;
+      font-weight: 600;
     }
 
-    .username-item span {
-      font-size: 15px;
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .at-symbol {
-      color: var(--text-secondary);
+    .username-display {
+      font-size: 14px;
+      color: var(--text-dim);
     }
 
-    .remove-btn {
+    .logout-btn {
       background: none;
       border: none;
       color: var(--danger);
-      font-size: 24px;
-      padding: 4px 8px;
+      font-size: 14px;
       cursor: pointer;
-      line-height: 1;
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--text-secondary);
-    }
-
-    .empty-state p {
-      font-size: 15px;
-      margin-bottom: 8px;
-    }
-
-    .empty-state small {
-      font-size: 13px;
-      opacity: 0.7;
-    }
-
-    /* Footer actions */
-    .footer-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .footer-btn {
+    /* Reels Container */
+    .reels-container {
       flex: 1;
-      padding: 12px;
-      background: var(--surface-elevated);
-      border: 1px solid #333;
-      border-radius: 10px;
-      font-size: 14px;
-      color: var(--text);
-      cursor: pointer;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .footer-btn:active {
-      background: #252525;
+    .reel-item {
+      height: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
     }
 
-    .footer-btn.danger {
-      color: var(--danger);
-      border-color: var(--danger);
+    .reel-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
-    /* Status message */
-    .status {
-      position: fixed;
-      bottom: calc(20px + var(--safe-bottom));
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--surface-elevated);
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease;
-      z-index: 1000;
+    .reel-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      padding-bottom: calc(20px + var(--safe-bottom));
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
     }
 
-    .status.visible {
-      transform: translateX(-50%) translateY(0);
+    .reel-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
-    .status.success {
-      background: #1b4332;
-      color: #95d5b2;
+    .reel-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
     }
 
-    .status.error {
-      background: #4a1c1c;
-      color: #f8b4b4;
-    }
-
-    /* Info section */
-    .info {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .info h3 {
-      font-size: 14px;
+    .reel-username {
       font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--text-secondary);
+      font-size: 15px;
     }
 
-    .info ol {
-      padding-left: 20px;
+    .reel-caption {
       font-size: 14px;
-      line-height: 1.6;
-      color: var(--text-secondary);
+      line-height: 1.4;
+      max-height: 60px;
+      overflow: hidden;
     }
 
-    .info li {
-      margin-bottom: 4px;
+    /* Filter Actions */
+    .filter-actions {
+      position: absolute;
+      right: 16px;
+      bottom: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .filter-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .filter-btn:active {
+      transform: scale(0.9);
+    }
+
+    .filter-btn.approve {
+      background: var(--success);
+      color: white;
+    }
+
+    .filter-btn.reject {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--surface);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 2FA Screen */
+    .twofa-section {
+      display: none;
+    }
+
+    .twofa-section.active {
+      display: block;
+    }
+
+    .twofa-info {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-dim);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .empty-state h2 {
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <header class="header">
-      <h1>Instagram Feed Filter</h1>
-      <p>See only who you want to see</p>
-    </header>
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+      <div class="login-logo">Instapump</div>
 
-    <main class="content">
-      <!-- Browse Instagram -->
-      <a href="/ig/" class="browse-btn" id="browse-btn">
-        Open Filtered Instagram
-      </a>
+      <form class="login-form" id="login-form">
+        <input type="text" class="input-field" id="username" placeholder="Username" autocomplete="username" autocapitalize="none">
+        <input type="password" class="input-field" id="password" placeholder="Password" autocomplete="current-password">
+        <button type="submit" class="btn btn-primary" id="login-btn">Log In</button>
+        <div class="error-msg" id="login-error"></div>
+      </form>
 
-      <!-- Toggle -->
-      <div class="card" style="margin-top: 16px;">
-        <div class="card-header">
-          <span class="card-title">Filter Enabled</span>
-          <label class="toggle">
-            <input type="checkbox" id="toggle-enabled" checked>
-            <span class="toggle-slider"></span>
-          </label>
+      <div class="twofa-section" id="twofa-section">
+        <div class="twofa-info" id="twofa-info">Enter the code sent to your phone</div>
+        <form class="login-form" id="twofa-form">
+          <input type="text" class="input-field" id="twofa-code" placeholder="Verification code" autocomplete="one-time-code" inputmode="numeric">
+          <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reels Screen -->
+    <div class="reels-screen" id="reels-screen">
+      <header class="reels-header">
+        <span class="reels-title">Reels</span>
+        <div class="user-info">
+          <span class="username-display" id="username-display"></span>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <div class="reels-container" id="reels-container">
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
         </div>
       </div>
-
-      <!-- Add username -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Add Account</span>
-        </div>
-        <div class="input-group">
-          <input type="text" id="username-input" placeholder="@username" autocomplete="off" autocapitalize="none">
-          <button id="add-btn">Add</button>
-        </div>
-      </div>
-
-      <!-- Allowlist -->
-      <div class="card">
-        <div class="list-header">
-          <h3>Allowed Accounts</h3>
-          <span class="count-badge" id="count">0</span>
-        </div>
-        <ul class="username-list" id="username-list"></ul>
-        <div class="empty-state" id="empty-state">
-          <p>No accounts added</p>
-          <small>Add usernames to filter your feed</small>
-        </div>
-        <div class="footer-actions">
-          <button class="footer-btn" id="import-btn">Import</button>
-          <button class="footer-btn" id="export-btn">Export</button>
-          <button class="footer-btn danger" id="clear-btn">Clear</button>
-        </div>
-      </div>
-
-      <!-- Instructions -->
-      <div class="info">
-        <h3>How to use</h3>
-        <ol>
-          <li>Add accounts you want to see</li>
-          <li>Tap "Open Filtered Instagram"</li>
-          <li>Log in to Instagram if needed</li>
-          <li>Enjoy your filtered feed!</li>
-        </ol>
-      </div>
-
-      <!-- Add to home screen instructions -->
-      <div class="info">
-        <h3>Add to Home Screen</h3>
-        <ol>
-          <li>Tap the Share button</li>
-          <li>Scroll down, tap "Add to Home Screen"</li>
-          <li>Tap "Add" to confirm</li>
-        </ol>
-      </div>
-    </main>
+    </div>
   </div>
 
-  <div class="status" id="status"></div>
-
   <script>
-    // DOM elements
-    const toggleEnabled = document.getElementById('toggle-enabled');
-    const usernameInput = document.getElementById('username-input');
-    const addBtn = document.getElementById('add-btn');
-    const usernameList = document.getElementById('username-list');
-    const emptyState = document.getElementById('empty-state');
-    const countEl = document.getElementById('count');
-    const statusEl = document.getElementById('status');
-    const importBtn = document.getElementById('import-btn');
-    const exportBtn = document.getElementById('export-btn');
-    const clearBtn = document.getElementById('clear-btn');
+    // State
+    let currentUser = null;
+    let reels = [];
+    let currentReelIndex = 0;
 
-    let state = { enabled: true, allowlist: [] };
+    // Elements
+    const loginScreen = document.getElementById('login-screen');
+    const reelsScreen = document.getElementById('reels-screen');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const loginBtn = document.getElementById('login-btn');
+    const twofaSection = document.getElementById('twofa-section');
+    const twofaForm = document.getElementById('twofa-form');
+    const twofaInfo = document.getElementById('twofa-info');
+    const reelsContainer = document.getElementById('reels-container');
+    const loading = document.getElementById('loading');
+    const usernameDisplay = document.getElementById('username-display');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    // API helpers
+    // API helper
     async function api(endpoint, options = {}) {
       const res = await fetch(endpoint, {
         ...options,
-        headers: { 'Content-Type': 'application/json', ...options.headers },
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
         body: options.body ? JSON.stringify(options.body) : undefined
       });
       return res.json();
     }
 
-    function showStatus(msg, isError = false) {
-      statusEl.textContent = msg;
-      statusEl.className = `status visible ${isError ? 'error' : 'success'}`;
-      setTimeout(() => statusEl.classList.remove('visible'), 2500);
+    // Check auth status on load
+    async function checkAuth() {
+      try {
+        const status = await api('/api/auth/status');
+        if (status.loggedIn) {
+          currentUser = status.username;
+          showReelsScreen();
+        }
+      } catch (e) {
+        console.error('Auth check failed:', e);
+      }
     }
 
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const result = await api('/api/auth/login', {
+          method: 'POST',
+          body: { username, password }
+        });
+
+        if (result.success) {
+          currentUser = result.username;
+          showReelsScreen();
+        } else if (result.twoFactorRequired) {
+          // Show 2FA form
+          loginForm.style.display = 'none';
+          twofaSection.classList.add('active');
+          if (result.twoFactorInfo?.obfuscatedPhone) {
+            twofaInfo.textContent = `Enter the code sent to ${result.twoFactorInfo.obfuscatedPhone}`;
+          }
+        } else if (result.challengeRequired) {
+          loginError.textContent = result.message || 'Please verify your account in the Instagram app first';
+        } else {
+          loginError.textContent = result.error || 'Login failed';
+        }
+      } catch (e) {
+        loginError.textContent = 'Login failed. Please try again.';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log In';
+      }
+    });
+
+    // 2FA verification
+    twofaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('twofa-code').value;
+
+      try {
+        const result = await api('/api/auth/verify-2fa', {
+          method: 'POST',
+          body: { code }
+        });
+
+        if (result.success) {
+          currentUser = result.username;
+          showReelsScreen();
+        } else {
+          loginError.textContent = result.error || '2FA verification failed';
+        }
+      } catch (e) {
+        loginError.textContent = '2FA verification failed';
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      await api('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      reels = [];
+      loginScreen.classList.remove('hidden');
+      reelsScreen.classList.remove('active');
+      loginForm.style.display = 'block';
+      twofaSection.classList.remove('active');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    });
+
+    // Show reels screen
+    function showReelsScreen() {
+      loginScreen.classList.add('hidden');
+      reelsScreen.classList.add('active');
+      usernameDisplay.textContent = '@' + currentUser;
+      loadReels();
+    }
+
+    // Load reels
+    async function loadReels() {
+      loading.style.display = 'flex';
+      reelsContainer.innerHTML = '';
+      reelsContainer.appendChild(loading);
+
+      try {
+        // Try reels feed first, fall back to timeline
+        let result = await api('/api/reels');
+
+        if (result.tray && result.tray.length > 0) {
+          // Stories/Reels tray
+          reels = result.tray.filter(item => item.items && item.items.length > 0);
+        } else {
+          // Try timeline feed
+          result = await api('/api/feed');
+          if (result.feed_items) {
+            reels = result.feed_items.filter(item =>
+              item.media_or_ad &&
+              (item.media_or_ad.video_versions || item.media_or_ad.carousel_media)
+            );
+          }
+        }
+
+        renderReels();
+      } catch (e) {
+        console.error('Failed to load reels:', e);
+        loading.innerHTML = '<div class="empty-state"><h2>Failed to load</h2><p>Pull down to retry</p></div>';
+      }
+    }
+
+    // Render reels
+    function renderReels() {
+      loading.style.display = 'none';
+
+      if (reels.length === 0) {
+        reelsContainer.innerHTML = `
+          <div class="empty-state">
+            <h2>No reels found</h2>
+            <p>Check back later for new content</p>
+          </div>
+        `;
+        return;
+      }
+
+      reelsContainer.innerHTML = reels.map((reel, index) => {
+        const item = reel.items?.[0] || reel.media_or_ad || reel;
+        const user = item.user || reel.user || {};
+        const videoUrl = item.video_versions?.[0]?.url || '';
+        const imageUrl = item.image_versions2?.candidates?.[0]?.url || '';
+        const caption = item.caption?.text || '';
+
+        return `
+          <div class="reel-item" data-index="${index}">
+            ${videoUrl ? `
+              <video class="reel-video" src="/api/media?url=${encodeURIComponent(videoUrl)}"
+                     loop playsinline muted
+                     poster="${imageUrl ? '/api/media?url=' + encodeURIComponent(imageUrl) : ''}">
+              </video>
+            ` : `
+              <img class="reel-video" src="/api/media?url=${encodeURIComponent(imageUrl)}" alt="">
+            `}
+
+            <div class="reel-overlay">
+              <div class="reel-user">
+                ${user.profile_pic_url ? `
+                  <img class="reel-avatar" src="/api/media?url=${encodeURIComponent(user.profile_pic_url)}" alt="">
+                ` : ''}
+                <span class="reel-username">@${user.username || 'unknown'}</span>
+              </div>
+              ${caption ? `<div class="reel-caption">${escapeHtml(caption.substring(0, 150))}</div>` : ''}
+            </div>
+
+            <div class="filter-actions">
+              <button class="filter-btn approve" onclick="approveAccount('${user.username}')">+</button>
+              <button class="filter-btn reject" onclick="rejectAccount('${user.username}')">-</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Auto-play first video
+      const firstVideo = reelsContainer.querySelector('video');
+      if (firstVideo) {
+        firstVideo.play().catch(() => {});
+      }
+
+      // Handle scroll for video playback
+      setupVideoPlayback();
+    }
+
+    // Setup video playback on scroll
+    function setupVideoPlayback() {
+      const videos = reelsContainer.querySelectorAll('video');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.play().catch(() => {});
+          } else {
+            entry.target.pause();
+          }
+        });
+      }, { threshold: 0.5 });
+
+      videos.forEach(video => observer.observe(video));
+
+      // Tap to play/pause
+      videos.forEach(video => {
+        video.addEventListener('click', () => {
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        });
+      });
+    }
+
+    // Approve account
+    async function approveAccount(username) {
+      if (!username) return;
+      try {
+        await api('/api/settings/approve', {
+          method: 'POST',
+          body: { username }
+        });
+        showToast(`Approved @${username}`);
+      } catch (e) {
+        console.error('Failed to approve:', e);
+      }
+    }
+
+    // Reject account
+    async function rejectAccount(username) {
+      if (!username) return;
+      try {
+        await api('/api/settings/reject', {
+          method: 'POST',
+          body: { username }
+        });
+        showToast(`Rejected @${username}`);
+      } catch (e) {
+        console.error('Failed to reject:', e);
+      }
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.9);
+        color: #000;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        animation: fadeInOut 2s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Escape HTML
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    function renderList() {
-      countEl.textContent = state.allowlist.length;
-      emptyState.style.display = state.allowlist.length ? 'none' : 'block';
-      usernameList.style.display = state.allowlist.length ? 'block' : 'none';
-
-      usernameList.innerHTML = state.allowlist.sort().map(u => `
-        <li class="username-item">
-          <span><span class="at-symbol">@</span>${escapeHtml(u)}</span>
-          <button class="remove-btn" data-username="${escapeHtml(u)}">&times;</button>
-        </li>
-      `).join('');
-    }
-
-    async function loadState() {
-      try {
-        state = await api('/api/state');
-        toggleEnabled.checked = state.enabled;
-        renderList();
-      } catch (e) {
-        showStatus('Failed to load state', true);
+    // Add animation style
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        20%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
       }
-    }
-
-    // Event handlers
-    toggleEnabled.addEventListener('change', async () => {
-      try {
-        const res = await api('/api/enabled', {
-          method: 'POST',
-          body: { enabled: toggleEnabled.checked }
-        });
-        state.enabled = res.enabled;
-        showStatus(state.enabled ? 'Filter enabled' : 'Filter disabled');
-      } catch (e) {
-        toggleEnabled.checked = state.enabled;
-        showStatus('Failed to update', true);
-      }
-    });
-
-    async function addUsername() {
-      const username = usernameInput.value.trim().replace(/^@/, '');
-      if (!username) return;
-
-      if (!/^[a-zA-Z0-9._]+$/.test(username)) {
-        showStatus('Invalid username', true);
-        return;
-      }
-
-      try {
-        const res = await api('/api/allowlist/add', {
-          method: 'POST',
-          body: { username }
-        });
-        state.allowlist = res.allowlist;
-        usernameInput.value = '';
-        renderList();
-        showStatus(`Added @${username}`);
-      } catch (e) {
-        showStatus('Failed to add', true);
-      }
-    }
-
-    addBtn.addEventListener('click', addUsername);
-    usernameInput.addEventListener('keypress', e => e.key === 'Enter' && addUsername());
-
-    usernameList.addEventListener('click', async e => {
-      if (!e.target.classList.contains('remove-btn')) return;
-      const username = e.target.dataset.username;
-
-      try {
-        const res = await api('/api/allowlist/remove', {
-          method: 'POST',
-          body: { username }
-        });
-        state.allowlist = res.allowlist;
-        renderList();
-        showStatus(`Removed @${username}`);
-      } catch (e) {
-        showStatus('Failed to remove', true);
-      }
-    });
-
-    importBtn.addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.txt,.json';
-
-      input.onchange = async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-          const text = await file.text();
-          let usernames;
-
-          if (file.name.endsWith('.json')) {
-            const data = JSON.parse(text);
-            usernames = Array.isArray(data) ? data : data.allowlist || data.usernames || [];
-          } else {
-            usernames = text.split(/[\n,]/).map(u => u.trim().replace(/^@/, '')).filter(Boolean);
-          }
-
-          const res = await api('/api/allowlist/import', {
-            method: 'POST',
-            body: { usernames }
-          });
-          state.allowlist = res.allowlist;
-          renderList();
-          showStatus(`Imported ${res.added} accounts`);
-        } catch (e) {
-          showStatus('Import failed', true);
-        }
-      };
-
-      input.click();
-    });
-
-    exportBtn.addEventListener('click', () => {
-      if (!state.allowlist.length) {
-        showStatus('Nothing to export', true);
-        return;
-      }
-
-      const data = JSON.stringify({ allowlist: state.allowlist }, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ig-filter-allowlist.json';
-      a.click();
-
-      URL.revokeObjectURL(url);
-      showStatus('Exported!');
-    });
-
-    clearBtn.addEventListener('click', async () => {
-      if (!state.allowlist.length) return;
-      if (!confirm('Clear all accounts?')) return;
-
-      try {
-        await api('/api/allowlist/clear', { method: 'POST' });
-        state.allowlist = [];
-        renderList();
-        showStatus('Cleared all');
-      } catch (e) {
-        showStatus('Failed to clear', true);
-      }
-    });
+    `;
+    document.head.appendChild(style);
 
     // Initialize
-    loadState();
+    checkAuth();
   </script>
 </body>
 </html>
