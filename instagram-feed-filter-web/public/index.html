@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <title>Instapump</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #000;
+      --surface: #121212;
+      --surface-2: #1e1e1e;
+      --text: #fff;
+      --text-dim: #888;
+      --accent: #0095f6;
+      --danger: #ed4956;
+      --success: #2ecc71;
+      --gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    /* Login Screen */
+    .login-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-screen.hidden { display: none; }
+
+    .login-logo {
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 40px;
+    }
+
+    .login-form {
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: var(--surface);
+      border: 1px solid #333;
+      border-radius: 8px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-dim);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:active:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 14px;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* Reels Screen */
+    .reels-screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .reels-screen.active { display: flex; }
+
+    .reels-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid #222;
+    }
+
+    .reels-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .username-display {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Reels Container */
+    .reels-container {
+      flex: 1;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .reel-item {
+      height: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    .reel-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .reel-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      padding-bottom: calc(20px + var(--safe-bottom));
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    }
+
+    .reel-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .reel-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    .reel-username {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .reel-caption {
+      font-size: 14px;
+      line-height: 1.4;
+      max-height: 60px;
+      overflow: hidden;
+    }
+
+    /* Filter Actions */
+    .filter-actions {
+      position: absolute;
+      right: 16px;
+      bottom: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .filter-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .filter-btn:active {
+      transform: scale(0.9);
+    }
+
+    .filter-btn.approve {
+      background: var(--success);
+      color: white;
+    }
+
+    .filter-btn.reject {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--surface);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 2FA Screen */
+    .twofa-section {
+      display: none;
+    }
+
+    .twofa-section.active {
+      display: block;
+    }
+
+    .twofa-info {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-dim);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .empty-state h2 {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+      <div class="login-logo">Instapump</div>
+
+      <form class="login-form" id="login-form">
+        <input type="text" class="input-field" id="username" placeholder="Username" autocomplete="username" autocapitalize="none">
+        <input type="password" class="input-field" id="password" placeholder="Password" autocomplete="current-password">
+        <button type="submit" class="btn btn-primary" id="login-btn">Log In</button>
+        <div class="error-msg" id="login-error"></div>
+      </form>
+
+      <div class="twofa-section" id="twofa-section">
+        <div class="twofa-info" id="twofa-info">Enter the code sent to your phone</div>
+        <form class="login-form" id="twofa-form">
+          <input type="text" class="input-field" id="twofa-code" placeholder="Verification code" autocomplete="one-time-code" inputmode="numeric">
+          <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reels Screen -->
+    <div class="reels-screen" id="reels-screen">
+      <header class="reels-header">
+        <span class="reels-title">Reels</span>
+        <div class="user-info">
+          <span class="username-display" id="username-display"></span>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <div class="reels-container" id="reels-container">
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentUser = null;
+    let reels = [];
+    let currentReelIndex = 0;
+
+    // Elements
+    const loginScreen = document.getElementById('login-screen');
+    const reelsScreen = document.getElementById('reels-screen');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const loginBtn = document.getElementById('login-btn');
+    const twofaSection = document.getElementById('twofa-section');
+    const twofaForm = document.getElementById('twofa-form');
+    const twofaInfo = document.getElementById('twofa-info');
+    const reelsContainer = document.getElementById('reels-container');
+    const loading = document.getElementById('loading');
+    const usernameDisplay = document.getElementById('username-display');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // API helper
+    async function api(endpoint, options = {}) {
+      const res = await fetch(endpoint, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      return res.json();
+    }
+
+    // Check auth status on load
+    async function checkAuth() {
+      try {
+        const status = await api('/api/auth/status');
+        if (status.loggedIn) {
+          currentUser = status.username;
+          showReelsScreen();
+        }
+      } catch (e) {
+        console.error('Auth check failed:', e);
+      }
+    }
+
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const result = await api('/api/auth/login', {
+          method: 'POST',
+          body: { username, password }
+        });
+
+        if (result.success) {
+          currentUser = result.username;
+          showReelsScreen();
+        } else if (result.twoFactorRequired) {
+          // Show 2FA form
+          loginForm.style.display = 'none';
+          twofaSection.classList.add('active');
+          if (result.twoFactorInfo?.obfuscatedPhone) {
+            twofaInfo.textContent = `Enter the code sent to ${result.twoFactorInfo.obfuscatedPhone}`;
+          }
+        } else if (result.challengeRequired) {
+          loginError.textContent = result.message || 'Please verify your account in the Instagram app first';
+        } else {
+          // Show detailed error
+          let errorMsg = result.error || 'Login failed';
+          if (result.details) {
+            console.log('Login error details:', result.details);
+          }
+          if (result.errorType) {
+            errorMsg += ` (${result.errorType})`;
+          }
+          loginError.textContent = errorMsg;
+        }
+      } catch (e) {
+        loginError.textContent = 'Login failed. Please try again.';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log In';
+      }
+    });
+
+    // 2FA verification
+    twofaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('twofa-code').value;
+
+      try {
+        const result = await api('/api/auth/verify-2fa', {
+          method: 'POST',
+          body: { code }
+        });
+
+        if (result.success) {
+          currentUser = result.username;
+          showReelsScreen();
+        } else {
+          loginError.textContent = result.error || '2FA verification failed';
+        }
+      } catch (e) {
+        loginError.textContent = '2FA verification failed';
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      await api('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      reels = [];
+      loginScreen.classList.remove('hidden');
+      reelsScreen.classList.remove('active');
+      loginForm.style.display = 'block';
+      twofaSection.classList.remove('active');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    });
+
+    // Show reels screen
+    function showReelsScreen() {
+      loginScreen.classList.add('hidden');
+      reelsScreen.classList.add('active');
+      usernameDisplay.textContent = '@' + currentUser;
+      loadReels();
+    }
+
+    // Load reels
+    async function loadReels() {
+      loading.style.display = 'flex';
+      reelsContainer.innerHTML = '';
+      reelsContainer.appendChild(loading);
+
+      try {
+        // Try reels feed first, fall back to timeline
+        let result = await api('/api/reels');
+
+        if (result.tray && result.tray.length > 0) {
+          // Stories/Reels tray
+          reels = result.tray.filter(item => item.items && item.items.length > 0);
+        } else {
+          // Try timeline feed
+          result = await api('/api/feed');
+          if (result.feed_items) {
+            reels = result.feed_items.filter(item =>
+              item.media_or_ad &&
+              (item.media_or_ad.video_versions || item.media_or_ad.carousel_media)
+            );
+          }
+        }
+
+        renderReels();
+      } catch (e) {
+        console.error('Failed to load reels:', e);
+        loading.innerHTML = '<div class="empty-state"><h2>Failed to load</h2><p>Pull down to retry</p></div>';
+      }
+    }
+
+    // Render reels
+    function renderReels() {
+      loading.style.display = 'none';
+
+      if (reels.length === 0) {
+        reelsContainer.innerHTML = `
+          <div class="empty-state">
+            <h2>No reels found</h2>
+            <p>Check back later for new content</p>
+          </div>
+        `;
+        return;
+      }
+
+      reelsContainer.innerHTML = reels.map((reel, index) => {
+        const item = reel.items?.[0] || reel.media_or_ad || reel;
+        const user = item.user || reel.user || {};
+        const videoUrl = item.video_versions?.[0]?.url || '';
+        const imageUrl = item.image_versions2?.candidates?.[0]?.url || '';
+        const caption = item.caption?.text || '';
+
+        return `
+          <div class="reel-item" data-index="${index}">
+            ${videoUrl ? `
+              <video class="reel-video" src="/api/media?url=${encodeURIComponent(videoUrl)}"
+                     loop playsinline muted
+                     poster="${imageUrl ? '/api/media?url=' + encodeURIComponent(imageUrl) : ''}">
+              </video>
+            ` : `
+              <img class="reel-video" src="/api/media?url=${encodeURIComponent(imageUrl)}" alt="">
+            `}
+
+            <div class="reel-overlay">
+              <div class="reel-user">
+                ${user.profile_pic_url ? `
+                  <img class="reel-avatar" src="/api/media?url=${encodeURIComponent(user.profile_pic_url)}" alt="">
+                ` : ''}
+                <span class="reel-username">@${user.username || 'unknown'}</span>
+              </div>
+              ${caption ? `<div class="reel-caption">${escapeHtml(caption.substring(0, 150))}</div>` : ''}
+            </div>
+
+            <div class="filter-actions">
+              <button class="filter-btn approve" onclick="approveAccount('${user.username}')">+</button>
+              <button class="filter-btn reject" onclick="rejectAccount('${user.username}')">-</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Auto-play first video
+      const firstVideo = reelsContainer.querySelector('video');
+      if (firstVideo) {
+        firstVideo.play().catch(() => {});
+      }
+
+      // Handle scroll for video playback
+      setupVideoPlayback();
+    }
+
+    // Setup video playback on scroll
+    function setupVideoPlayback() {
+      const videos = reelsContainer.querySelectorAll('video');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.play().catch(() => {});
+          } else {
+            entry.target.pause();
+          }
+        });
+      }, { threshold: 0.5 });
+
+      videos.forEach(video => observer.observe(video));
+
+      // Tap to play/pause
+      videos.forEach(video => {
+        video.addEventListener('click', () => {
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        });
+      });
+    }
+
+    // Approve account
+    async function approveAccount(username) {
+      if (!username) return;
+      try {
+        await api('/api/settings/approve', {
+          method: 'POST',
+          body: { username }
+        });
+        showToast(`Approved @${username}`);
+      } catch (e) {
+        console.error('Failed to approve:', e);
+      }
+    }
+
+    // Reject account
+    async function rejectAccount(username) {
+      if (!username) return;
+      try {
+        await api('/api/settings/reject', {
+          method: 'POST',
+          body: { username }
+        });
+        showToast(`Rejected @${username}`);
+      } catch (e) {
+        console.error('Failed to reject:', e);
+      }
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.9);
+        color: #000;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        animation: fadeInOut 2s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Add animation style
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        20%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize
+    checkAuth();
+  </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Feed Filter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      width: 320px;
+      background: #fafafa;
+      color: #262626;
+    }
+
+    .header {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .toggle-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid #dbdbdb;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background: linear-gradient(45deg, #f09433, #dc2743);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    .add-section {
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid #dbdbdb;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: #0095f6;
+    }
+
+    .input-group button {
+      padding: 10px 16px;
+      background: #0095f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .input-group button:hover {
+      background: #1877f2;
+    }
+
+    .input-group button:disabled {
+      background: #b2dffc;
+      cursor: not-allowed;
+    }
+
+    .list-section {
+      background: white;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #dbdbdb;
+      position: sticky;
+      top: 0;
+      background: white;
+    }
+
+    .list-header h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #8e8e8e;
+    }
+
+    .list-header .count {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+
+    .username-list {
+      list-style: none;
+    }
+
+    .username-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #efefef;
+    }
+
+    .username-item:hover {
+      background: #fafafa;
+    }
+
+    .username-item span {
+      font-size: 14px;
+    }
+
+    .username-item .at-symbol {
+      color: #8e8e8e;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #ed4956;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .remove-btn:hover {
+      background: #ffeaea;
+    }
+
+    .empty-state {
+      padding: 32px 16px;
+      text-align: center;
+      color: #8e8e8e;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state small {
+      font-size: 12px;
+    }
+
+    .footer {
+      padding: 12px 16px;
+      border-top: 1px solid #dbdbdb;
+      background: white;
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      background: white;
+      font-size: 12px;
+      color: #262626;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .footer-btn:hover {
+      background: #fafafa;
+      border-color: #8e8e8e;
+    }
+
+    .footer-btn.danger {
+      color: #ed4956;
+      border-color: #ed4956;
+    }
+
+    .footer-btn.danger:hover {
+      background: #ffeaea;
+    }
+
+    .status-msg {
+      padding: 8px 16px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .status-msg.success {
+      display: block;
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-msg.error {
+      display: block;
+      background: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Instagram Feed Filter</h1>
+  </div>
+
+  <div class="toggle-section">
+    <span class="toggle-label">Filter Enabled</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggle-enabled" checked>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div id="status-msg" class="status-msg"></div>
+
+  <div class="add-section">
+    <div class="input-group">
+      <input type="text" id="username-input" placeholder="Enter username" autocomplete="off">
+      <button id="add-btn">Add</button>
+    </div>
+  </div>
+
+  <div class="list-section">
+    <div class="list-header">
+      <h2>Allowed Accounts</h2>
+      <span class="count" id="count">0</span>
+    </div>
+    <ul class="username-list" id="username-list">
+      <!-- Usernames will be populated here -->
+    </ul>
+    <div class="empty-state" id="empty-state">
+      <p>No accounts added yet</p>
+      <small>Add usernames to only see their posts</small>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-actions">
+      <button class="footer-btn" id="import-btn">Import</button>
+      <button class="footer-btn" id="export-btn">Export</button>
+      <button class="footer-btn danger" id="clear-btn">Clear All</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
