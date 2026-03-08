@@ -1,0 +1,79 @@
+#EXTM3U
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 1 HD (1080p)
+http://103.229.254.25:7001/play/a0a0/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 1 Hindi (576p)
+http://161.248.38.40:8000/play/a071/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 1 Hindi HD (1080p)
+http://161.248.38.40:8000/play/a06n/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 1 Tamil HD (1080p)
+http://111.88.78.21:8000/play/a0to/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 1 Telugu HD (1080p)
+http://111.88.78.21:8000/play/a0vc/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 HD (1080p)
+http://103.121.6.5:8000/play/a05u/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 Hindi (576p)
+http://111.88.78.21:8000/play/a0x8/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 Hindi HD (1080p)
+http://103.113.103.202:8001/play/a028/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 Hindi HD (480p)
+http://tvn1.chowdhury-shaheb.com/starsport2/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 Tamil (576p)
+http://103.229.254.25:7001/play/a0dc/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 2 Tamil HD (1080p)
+http://103.229.254.25:7001/play/a0d1/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports 3 (576p)
+http://103.121.6.5:8000/play/a05y/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports Select 1 HD (1080p)
+http://103.113.103.202:8001/play/a02e/index.m3u8
+
+#EXTINF:-1 group-title="Star Sports",Star Sports Select 2 HD (1080p)
+http://103.113.103.202:8001/play/a02q/index.m3u8
+
+#EXTINF:-1 group-title="Sony Sports",Sony Sports Ten 1 HD (1080p)
+http://103.121.6.5:8000/play/a05w/index.m3u8
+
+#EXTINF:-1 group-title="Sony Sports",Sony Sports Ten 2 HD (1080p)
+http://103.229.254.25:7001/play/a02t/index.m3u8
+
+#EXTINF:-1 group-title="Sony Sports",Sony Sports Ten 3 Hindi (576p)
+http://103.229.254.25:7001/play/a09q/index.m3u8
+
+#EXTINF:-1 group-title="Sony Sports",Sony Sports Ten 3 Hindi HD (1080p)
+http://116.90.120.128:8000/play/a0jr/index.m3u8
+
+#EXTINF:-1 group-title="Sony Sports",Sony Sports Ten 5 HD (1080p)
+http://103.229.254.25:7001/play/a0dw/index.m3u8
+
+#EXTINF:-1 group-title="DD Sports",DD Sports SD (1080p) - CloudFront CDN
+https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/b17adfe543354fdd8d189b110617cddd/index.m3u8
+
+#EXTINF:-1 group-title="DD Sports",DD Sports (576p) - Tango
+https://mumt02.tangotv.in/DDSPORTS/index.m3u8
+
+#EXTINF:-1 group-title="DD Sports",DD Sports (720p) - PiShow
+https://cdn-6.pishow.tv/live/13/master.m3u8
+
+#EXTINF:-1 group-title="DD Sports",DD Sports (576p) - Alt 1
+http://103.78.149.54:8000/play/a02r/index.m3u8
+
+#EXTINF:-1 group-title="DD Sports",DD Sports HD (1080p) - Alt 2
+http://103.78.149.54:8000/play/a02i/index.m3u8
+
+#EXTINF:-1 group-title="International Cricket",Willow Sports (1080p) [US Only]
+https://amg01269-amg01269c1-distrotv-us-5379.playouts.now.amagi.tv/playlist/amg01269-willowtvfast-willowplus-distrotvus/playlist.m3u8
+
+#EXTINF:-1 group-title="International Cricket",Ten Sports Pakistan
+http://121.91.61.106:8000/play/a04h/index.m3u8
